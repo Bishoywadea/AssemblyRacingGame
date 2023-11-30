@@ -1,5 +1,5 @@
 from PIL import Image
-filename = 'onee.png'
+filename = 'tuk_tuk1-removebg-pixeld.png'
 im = Image.open(filename)
 width, height = im.size
 pixels = list(im.getdata())
