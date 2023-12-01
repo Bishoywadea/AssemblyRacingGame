@@ -1,3 +1,2 @@
-# TODO (CAR TEAM)
--Make the car pixels matrix 
--Make car rotate by 90
+# TODO (CAR TEAM) 🛺🛺
+- refactor all the macros in the code to be procedures 
