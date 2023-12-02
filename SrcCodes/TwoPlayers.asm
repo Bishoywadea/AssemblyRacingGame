@@ -31,70 +31,77 @@
 
     BackGroundColor EQU 0
     CarColor        EQU 0FH
-    imgW            EQU 32
-    imgH            EQU 32
+    imgW            EQU 33
+    imgH            EQU 33
     
-    img             DB  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-                    DB  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-                    DB  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 31, 31, 31, 29, 30, 31, 31, 31, 0, 0, 0, 0
-                    DB  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 23, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 23, 0, 0, 0, 0, 0, 0, 0, 0, 0
-                    DB  0, 0, 0, 0, 0, 0, 0, 0, 0, 21, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 21, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-                    DB  0, 20, 23, 160, 137, 161, 160, 137, 137, 160, 161, 137, 161, 23, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 20, 22, 136, 12, 12, 12, 12
-                    DB  12, 12, 12, 12, 136, 22, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 20, 22, 137, 12, 12, 12, 12, 12, 12, 12, 12, 137, 22, 20, 0
-                    DB  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 21, 22, 137, 140, 140, 140, 139, 139, 140, 140, 139, 137, 22, 21, 0, 0, 0, 0, 0, 0, 0, 0, 0
-                    DB  0, 0, 0, 0, 0, 0, 0, 0, 0, 25, 23, 137, 140, 140, 140, 139, 139, 140, 140, 139, 137, 23, 25, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-                    DB  0, 24, 23, 138, 139, 139, 139, 139, 139, 139, 139, 139, 138, 23, 24, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 24, 24, 25, 24, 24, 24, 24
-                    DB  24, 24, 24, 24, 25, 24, 23, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 24, 24, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 24, 23, 0
-                    DB  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 0, 0, 0, 0, 0, 0, 0, 0, 0
-                    DB  0, 0, 0, 0, 0, 0, 0, 0, 0, 29, 22, 21, 22, 22, 21, 21, 21, 21, 22, 22, 21, 22, 31, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-                    DB  0, 0, 21, 21, 23, 24, 24, 24, 24, 24, 24, 23, 21, 21, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 21, 21, 21, 172, 79, 25
-                    DB  25, 79, 172, 21, 21, 22, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 22, 21, 20, 173, 79, 79, 79, 79, 173, 20, 21, 22, 0, 0
-                    DB  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 22, 21, 20, 173, 79, 79, 79, 79, 173, 20, 21, 22, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-                    DB  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 22, 21, 20, 175, 172, 25, 25, 172, 175, 20, 21, 22, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-                    DB  0, 0, 23, 21, 21, 20, 22, 24, 24, 22, 20, 21, 21, 23, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 21, 20, 20, 21, 23
-                    DB  23, 21, 20, 20, 21, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 19, 19, 19, 20, 20, 20, 20, 19, 19, 19, 0, 0, 0
-                    DB  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 19, 19, 19, 19, 19, 19, 19, 19, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-                    DB  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 23, 20, 22, 22, 22, 22, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-                    DB  0, 0, 0, 0, 0, 0, 26, 24, 24, 26, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 22
-                    DB  22, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-                    DB  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-                    DB  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-                    DB  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+    img DB 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16 
+ DB 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 17, 17 
+ DB 17, 18, 18, 18, 18, 18, 18, 16, 17, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 18, 143, 117, 117, 140, 140, 140, 140, 140, 140 
+ DB 18, 16, 17, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 17, 16, 16, 18, 117, 117, 117, 141, 140, 140, 140, 140, 140, 18, 16, 17, 16, 16, 16, 16 
+ DB 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 17, 16, 16, 18, 142, 117, 117, 117, 117, 117, 117, 141, 140, 18, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16 
+ DB 16, 16, 16, 16, 16, 16, 16, 16, 16, 18, 142, 117, 117, 117, 117, 117, 117, 141, 140, 18, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16 
+ DB 17, 18, 18, 142, 117, 117, 117, 117, 117, 117, 141, 140, 18, 238, 17, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 216, 236, 18, 142, 117, 117, 117 
+ DB 117, 117, 117, 141, 140, 215, 164, 18, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 216, 212, 18, 142, 117, 117, 117, 117, 117, 117, 141, 140, 215, 164 
+ DB 18, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 216, 212, 18, 142, 117, 117, 117, 117, 117, 117, 141, 140, 215, 164, 18, 16, 16, 16, 16, 16, 16 
+ DB 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 216, 212, 18, 142, 117, 117, 117, 117, 117, 117, 141, 140, 215, 164, 18, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16 
+ DB 16, 16, 16, 16, 16, 216, 212, 18, 142, 117, 117, 117, 117, 117, 117, 141, 140, 215, 164, 18, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 216, 212 
+ DB 18, 142, 117, 117, 117, 117, 117, 117, 141, 140, 215, 164, 18, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 216, 212, 18, 142, 117, 117, 117, 117, 117 
+ DB 117, 141, 140, 215, 164, 18, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 18, 238, 18, 142, 141, 141, 141, 141, 141, 141, 141, 140, 216, 166, 18, 16 
+ DB 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 17, 16, 16, 18, 141, 140, 140, 140, 140, 140, 140, 140, 140, 18, 17, 17, 17, 16, 16, 16, 16, 16, 16, 16 
+ DB 16, 16, 16, 16, 16, 16, 16, 16, 16, 17, 16, 16, 18, 143, 143, 143, 143, 143, 143, 143, 143, 118, 17, 16, 17, 17, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16 
+ DB 16, 16, 16, 16, 16, 16, 17, 17, 17, 17, 17, 17, 17, 17, 17, 16, 16, 16, 17, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 142, 140, 236, 16, 16, 16 
+ DB 16, 16, 16, 16, 16, 16, 16, 16, 16, 17, 142, 140, 236, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 142, 140, 142, 215, 18, 16, 16, 16, 16, 16, 16, 16, 16 
+ DB 16, 190, 215, 140, 140, 236, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 215, 141, 143, 18, 16, 16, 16, 16, 16, 16, 16, 215, 142, 141, 18, 16, 16, 16 
+ DB 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 214, 140, 141, 118, 190, 190, 190, 190, 190, 190, 215, 117, 117, 140, 18, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16 
+ DB 16, 16, 16, 16, 16, 16, 16, 16, 214, 140, 117, 117, 117, 117, 117, 117, 117, 117, 117, 117, 117, 140, 18, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16 
+ DB 17, 214, 140, 117, 117, 117, 117, 117, 117, 117, 117, 117, 117, 141, 140, 18, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 214, 140, 117, 117, 117, 117 
+ DB 117, 117, 117, 117, 117, 117, 141, 140, 18, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 17, 215, 141, 140, 140, 117, 117, 117, 117, 117, 117, 141, 140, 140 
+ DB 141, 18, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 17, 17, 214, 141, 140, 140, 140, 140, 140, 140, 140, 140, 141, 141, 215, 17, 16, 16, 16, 16, 16 
+ DB 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 17, 18, 18, 214, 141, 141, 141, 141, 141, 141, 141, 215, 216, 17, 17, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16 
+ DB 16, 16, 16, 16, 16, 16, 16, 17, 17, 18, 118, 118, 118, 118, 118, 118, 212, 17, 17, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16 
+ DB 16, 16, 17, 17, 17, 17, 17, 17, 17, 17, 17, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16 
+ DB 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16 
+ DB 16, 16, 16, 16, 16, 16, 16, 16, 16
 
-    img2            DB  16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16
-                    DB  16, 16, 16, 16, 17, 19, 20, 20, 20, 20, 20, 19, 19, 17, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 18, 23, 24, 27, 27
-                    DB  27, 26, 26, 26, 25, 162, 17, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 138, 140, 139, 163, 138, 139, 139, 139, 163, 139, 162, 164, 18
-                    DB  16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 210, 140, 138, 161, 161, 161, 161, 161, 161, 161, 138, 161, 140, 212, 16, 16, 16, 16, 16, 16, 16, 16
-                    DB  16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 212, 140, 138, 161, 161, 161, 161, 161, 161, 161, 138, 138, 140, 212, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16
-                    DB  16, 16, 212, 140, 161, 161, 161, 161, 161, 161, 161, 161, 138, 161, 140, 212, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 212, 140, 161, 161, 161, 161
-                    DB  161, 161, 161, 161, 161, 162, 140, 212, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 212, 140, 161, 161, 161, 161, 161, 161, 161, 161, 161, 162, 140, 212
-                    DB  16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 18, 140, 161, 161, 161, 161, 161, 161, 161, 161, 161, 162, 164, 210, 16, 16, 16, 16, 16, 16, 16, 16
-                    DB  16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 18, 161, 161, 161, 161, 161, 161, 161, 161, 161, 161, 18, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16
-                    DB  16, 16, 16, 18, 161, 161, 161, 161, 161, 161, 161, 161, 161, 161, 210, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 18, 161, 161, 161, 161
-                    DB  161, 161, 161, 161, 161, 139, 210, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 17, 138, 161, 161, 161, 161, 161, 161, 161, 161, 163, 210, 16
-                    DB  16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 138, 161, 161, 161, 161, 161, 161, 161, 161, 163, 210, 16, 16, 16, 16, 16, 16, 16, 16, 16
-                    DB  16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 138, 161, 161, 161, 161, 161, 161, 161, 161, 163, 18, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16
-                    DB  16, 16, 16, 16, 20, 161, 161, 161, 161, 161, 161, 161, 161, 138, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 20, 161, 161, 161
-                    DB  161, 161, 161, 161, 161, 20, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 235, 161, 161, 161, 161, 161, 161, 161, 161, 235, 16, 16
-                    DB  16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 235, 161, 161, 161, 161, 161, 161, 161, 161, 235, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16
-                    DB  16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 19, 20, 161, 161, 161, 161, 161, 161, 161, 161, 20, 19, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16
-                    DB  16, 16, 16, 17, 162, 26, 26, 26, 26, 26, 26, 26, 26, 162, 17, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 18, 27, 29, 30
-                    DB  30, 30, 30, 29, 27, 18, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 235, 25, 66, 66, 66, 66, 25, 235, 16, 16, 16
-                    DB  16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 17, 138, 43, 43, 20, 17, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16
-                    DB  16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 210, 43, 43, 18, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16
-                    DB  16, 16, 16, 16, 16, 16, 16, 16, 140, 26, 17, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16
-                    DB  17, 17, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16
-                    DB  16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16
-                    DB  16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16
-                    DB  16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16
+    img2 DB 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16 
+ DB 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 17, 17 
+ DB 17, 18, 18, 18, 18, 18, 18, 16, 17, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 18, 143, 117, 117, 140, 140, 140, 140, 140, 140 
+ DB 18, 16, 17, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 17, 16, 16, 18, 117, 117, 117, 141, 140, 140, 140, 140, 140, 18, 16, 17, 16, 16, 16, 16 
+ DB 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 17, 16, 16, 18, 142, 117, 117, 117, 117, 117, 117, 141, 140, 18, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16 
+ DB 16, 16, 16, 16, 16, 16, 16, 16, 16, 18, 142, 117, 117, 117, 117, 117, 117, 141, 140, 18, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16 
+ DB 17, 18, 18, 142, 117, 117, 117, 117, 117, 117, 141, 140, 18, 238, 17, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 216, 236, 18, 142, 117, 117, 117 
+ DB 117, 117, 117, 141, 140, 215, 164, 18, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 216, 212, 18, 142, 117, 117, 117, 117, 117, 117, 141, 140, 215, 164 
+ DB 18, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 216, 212, 18, 142, 117, 117, 117, 117, 117, 117, 141, 140, 215, 164, 18, 16, 16, 16, 16, 16, 16 
+ DB 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 216, 212, 18, 142, 117, 117, 117, 117, 117, 117, 141, 140, 215, 164, 18, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16 
+ DB 16, 16, 16, 16, 16, 216, 212, 18, 142, 117, 117, 117, 117, 117, 117, 141, 140, 215, 164, 18, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 216, 212 
+ DB 18, 142, 117, 117, 117, 117, 117, 117, 141, 140, 215, 164, 18, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 216, 212, 18, 142, 117, 117, 117, 117, 117 
+ DB 117, 141, 140, 215, 164, 18, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 18, 238, 18, 142, 141, 141, 141, 141, 141, 141, 141, 140, 216, 166, 18, 16 
+ DB 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 17, 16, 16, 18, 141, 140, 140, 140, 140, 140, 140, 140, 140, 18, 17, 17, 17, 16, 16, 16, 16, 16, 16, 16 
+ DB 16, 16, 16, 16, 16, 16, 16, 16, 16, 17, 16, 16, 18, 143, 143, 143, 143, 143, 143, 143, 143, 118, 17, 16, 17, 17, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16 
+ DB 16, 16, 16, 16, 16, 16, 17, 17, 17, 17, 17, 17, 17, 17, 17, 16, 16, 16, 17, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 142, 140, 236, 16, 16, 16 
+ DB 16, 16, 16, 16, 16, 16, 16, 16, 16, 17, 142, 140, 236, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 142, 140, 142, 215, 18, 16, 16, 16, 16, 16, 16, 16, 16 
+ DB 16, 190, 215, 140, 140, 236, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 215, 141, 143, 18, 16, 16, 16, 16, 16, 16, 16, 215, 142, 141, 18, 16, 16, 16 
+ DB 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 214, 140, 141, 118, 190, 190, 190, 190, 190, 190, 215, 117, 117, 140, 18, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16 
+ DB 16, 16, 16, 16, 16, 16, 16, 16, 214, 140, 117, 117, 117, 117, 117, 117, 117, 117, 117, 117, 117, 140, 18, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16 
+ DB 17, 214, 140, 117, 117, 117, 117, 117, 117, 117, 117, 117, 117, 141, 140, 18, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 214, 140, 117, 117, 117, 117 
+ DB 117, 117, 117, 117, 117, 117, 141, 140, 18, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 17, 215, 141, 140, 140, 117, 117, 117, 117, 117, 117, 141, 140, 140 
+ DB 141, 18, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 17, 17, 214, 141, 140, 140, 140, 140, 140, 140, 140, 140, 141, 141, 215, 17, 16, 16, 16, 16, 16 
+ DB 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 17, 18, 18, 214, 141, 141, 141, 141, 141, 141, 141, 215, 216, 17, 17, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16 
+ DB 16, 16, 16, 16, 16, 16, 16, 17, 17, 18, 118, 118, 118, 118, 118, 118, 212, 17, 17, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16 
+ DB 16, 16, 17, 17, 17, 17, 17, 17, 17, 17, 17, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16 
+ DB 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16 
+ DB 16, 16, 16, 16, 16, 16, 16, 16, 16
 
 .CODE
 MAIN PROC FAR
                       MOV   AX,@DATA
                       MOV   DS,AX
 
-                      MOV   [curXLoc_p1],0
-                      MOV   [curYLoc_p1],0
+                      MOV AX,0A000h
+                      MOV ES,AX
+
+                      MOV   [curXLoc_p1],50
+                      MOV   [curYLoc_p1],50
                       
                       MOV   [curXLoc_p2],200
                       MOV   [curYLoc_p2],150
@@ -103,15 +110,15 @@ MAIN PROC FAR
     ;;; Inilaizing Video Mode ;;;;
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
                       MOV   ax, 013h              ;
-                      MOV   bx, 0100h             ; 640x400 screen graphics mode
+                      ;MOV   bx, 0100h             ; 640x400 screen graphics mode
                       INT   10h                   ;execute the configuration
-                      CALL  DRAW_D
+                      CALL  DRAW_U
                       CALL  DRAW_D_p2
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     ; Get Key From Buff Then Decide Its Direction ;
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     directionDecision:
-    ;CALL  delay
+    CALL  delay
 
                       MOV   ah, 00H
                       INT   16H
@@ -165,7 +172,7 @@ MAIN PROC FAR
     ;;;;;;;;;;;;;;;
     move_s:           
                       CALL  emptyBuffer
-                      CALL  ERASE_V
+                      CALL  ERASE_H
                       INC   curYLoc_p1
                       CALL  DRAW_D
                       JMP   directionDecision
@@ -175,7 +182,7 @@ MAIN PROC FAR
     ;;;;;;;;;;;;;;;;
     move_a:           
                       CALL  emptyBuffer
-                      CALL  ERASE_H
+                      CALL  ERASE_V
                       DEC   curXLoc_p1
                       CALL  DRAW_L
                       JMP   directionDecision
@@ -245,34 +252,27 @@ MAIN ENDP
 DRAW_L PROC
     ;delete previous place (By Coloring its place with same backGround Color)
                       PUSHF
-                      MOV   [col_p1],imgW-1
-                      MOV   AH,0Bh                ;set the configuration
-                      MOV   CX, imgW              ;set the width (X) up to 64 (based on image resolution)
-                      MOV   DX, imgH              ;set the hieght (Y) up to 64 (based on image resolution)
-                      MOV   DI, offset img        ; to iterate over the pixels
-                      ADD   DI,[col_p1]
-                      JMP   Start_L
-    Drawit_L:         
-                      MOV   AH,0Ch                ;set the configuration to writing a pixel
-                      ADD   CX, curXLoc_p1        ;set the width (X) up to 64 (based on image resolution)
-                      ADD   DX, curYLoc_p1        ;set the hieght (Y) up to 64 (based on image resolution)
-                      MOV   AL, [DI]              ; color of the current coordinates
-                      MOV   BH,00h                ;set the page number
-                      INT   10h                   ;Avoid drawing before the calculations
-                      SUB   CX, curXLoc_p1
-                      SUB   DX, curYLoc_p1
-    Start_L:          
-                      ADD   DI,32
-                      DEC   CX                    ;  loop iteration in x direction
-                      JNZ   Drawit_L              ;  check if we can draw c urrent x and y and excape the y iteration
-                      MOV   Cx, imgW              ;  if loop iteration in y direction, then x should start over so that we sweep the grid
-                      DEC   [col_p1]
-                      MOV   DI, offset img        ; to iterate over the pixels
-                      ADD   DI,[col_p1]
-                      DEC   DX                    ;  loop iteration in y direction
-                      JZ    ENDING_L              ;  both x and y reached 00 so end program
-                      JMP   Drawit_L
-    ENDING_L:         
+                      MOV AX,320
+                      MUL curYLoc_p1
+                      ADD AX,curXLoc_p1
+                      SUB AX,5104
+                      MOV DI,AX
+                      ClD
+                      LEA SI,img
+                      MOV BX,0
+                      p1_label_L2:
+                      MOV DX,0
+                      p1_label_L:
+                      MOV CX,1
+                      rep MOVSB
+                      ADD DI,319
+                      INC DX
+                      CMP DX,33
+                      JNE p1_label_L
+                      SUB DI,10561
+                      INC BX
+                      CMP BX,33
+                      JNE p1_label_L2
                       POPF
                       RET
 DRAW_L ENDP
@@ -281,34 +281,27 @@ DRAW_L ENDP
 DRAW_R PROC
     ;delete previous place (By Coloring its place with same backGround Color)
                       PUSHF
-                      MOV   [col_p1],imgH*imgW
-                      MOV   AH,0Bh                ;set the configuration
-                      MOV   CX, imgW              ;set the width (X) up to 64 (based on image resolution)
-                      MOV   DX, imgH              ;set the hieght (Y) up to 64 (based on image resolution)
-                      LEA   DI, img               ; to iterate over the pixels
-                      ADD   DI,[col_p1]
-                      JMP   Start_R
-    Drawit_R:         
-                      MOV   AH,0Ch                ;set the configuration to writing a pixel
-                      ADD   CX, curXLoc_p1        ;set the width (X) up to 64 (based on image resolution)
-                      ADD   DX, curYLoc_p1        ;set the hieght (Y) up to 64 (based on image resolution)
-                      MOV   AL, [DI]              ; color of the current coordinates
-                      MOV   BH,00h                ;set the page number
-                      INT   10h                   ;Avoid drawing before the calculations
-                      SUB   CX, curXLoc_p1
-                      SUB   DX, curYLoc_p1
-    Start_R:          
-                      SUB   DI,32
-                      DEC   CX                    ;  loop iteration in x direction
-                      JNZ   Drawit_R              ;  check if we can draw c urrent x and y and excape the y iteration
-                      MOV   Cx, imgW              ;  if loop iteration in y direction, then x should start over so that we sweep the grid
-                      DEC   [col_p1]
-                      LEA   DI, img               ; to iterate over the pixels
-                      ADD   DI,[col_p1]
-                      DEC   DX                    ;  loop iteration in y direction
-                      JZ    ENDING_R              ;  both x and y reached 00 so end program
-                      JMP   Drawit_R
-    ENDING_R:         
+                      MOV AX,320
+                      MUL curYLoc_p1
+                      ADD AX,curXLoc_p1
+                      SUB AX,5136
+                      MOV DI,AX
+                      ClD
+                      LEA SI,img
+                      MOV BX,0
+                      p1_label_R2:
+                      MOV DX,0
+                      p1_label_R:
+                      MOV CX,1
+                      rep MOVSB
+                      ADD DI,319
+                      INC DX
+                      CMP DX,33
+                      JNE p1_label_R
+                      SUB DI,10559
+                      INC BX
+                      CMP BX,33
+                      JNE p1_label_R2
                       POPF
                       RET
 DRAW_R ENDP
@@ -317,34 +310,23 @@ DRAW_R ENDP
 ERASE_H PROC
     ;delete previous place (By Coloring its place with same backGround Color)
                       PUSHF
-                      MOV   [col_p1],imgW-1
-                      MOV   AH,0Bh                ;set the configuration
-                      MOV   CX, imgW              ;set the width (X) up to 64 (based on image resolution)
-                      MOV   DX, imgH              ;set the hieght (Y) up to 64 (based on image resolution)
-                      LEA   DI, img               ; to iterate over the pixels
-                      ADD   DI,[col_p1]
-                      JMP   Startt_H
-    Drawitt_H:        
-                      MOV   AH,0Ch                ;set the configuration to writing a pixel
-                      ADD   CX, curXLoc_p1        ;set the width (X) up to 64 (based on image resolution)
-                      ADD   DX, curYLoc_p1        ;set the hieght (Y) up to 64 (based on image resolution)
-                      MOV   AL, 0                 ; color of the current coordinates
-                      MOV   BH,00h                ;set the page number
-                      INT   10h                   ;Avoid drawing before the calculations
-                      SUB   CX, curXLoc_p1
-                      SUB   DX, curYLoc_p1
-    Startt_H:         
-                      ADD   DI,imgH
-                      DEC   CX                    ;  loop iteration in x direction
-                      JNZ   Drawitt_H             ;  check if we can draw c urrent x and y and excape the y iteration
-                      MOV   CX, imgW              ;  if loop iteration in y direction, then x should start over so that we sweep the grid
-                      DEC   [col_p1]
-                      LEA   DI, img               ; to iterate over the pixels
-                      ADD   DI,[col_p1]
-                      DEC   DX                    ;  loop iteration in y direction
-                      JZ    ENDINGG_H             ;  both x and y reached 00 so end program
-                      JMP   Drawitt_H
-    ENDINGG_H:        
+                      MOV AX,320d
+                      MUL curYLoc_p1
+                      ADD AX,curXLoc_p1
+                      SUB AX,5136
+                      MOV DI,AX
+                      ClD
+                      LEA SI,img
+                      MOV CX,0
+                      MOV DX,0
+                      MOV AL,0H
+                      p1_label_eraseH:
+                      MOV CX,imgH
+                      rep STOSB
+                      ADD DI,287
+                      INC DX
+                      CMP DX,33
+                      JNE p1_label_eraseH
                       POPF
                       RET
 ERASE_H ENDP
@@ -358,34 +340,22 @@ ERASE_H ENDP
 DRAW_D PROC
     ;delete previous place (By Coloring its place with same backGround Color)
                       PUSHF
-                      MOV   [col_p1],imgH*imgW
-                      MOV   AH,0Bh                ;set the configuration
-                      MOV   CX, imgH              ;set the width (X) up to 64 (based on image resolution)
-                      MOV   DX, imgW              ;set the hieght (Y) up to 64 (based on image resolution)
-                      LEA   DI, img               ; to iterate over the pixels
-                      ADD   DI,[col_p1]
-                      JMP   Start_D
-    Drawit_D:         
-                      MOV   AH,0Ch                ;set the configuration to writing a pixel
-                      ADD   CX, curXLoc_p1        ;set the width (X) up to 64 (based on image resolution)
-                      ADD   DX, curYLoc_p1        ;set the hieght (Y) up to 64 (based on image resolution)
-                      MOV   AL, [DI]              ; color of the current coordinates
-                      MOV   BH,00h                ;set the page number
-                      INT   10h                   ;Avoid drawing before the calculations
-                      SUB   CX, curXLoc_p1
-                      SUB   DX, curYLoc_p1
-    Start_D:          
-                      SUB   DI,imgW
-                      DEC   DX                    ;  loop iteration in y direction
-                      JNZ   Drawit_D              ;  check if we can draw current x and y and excape the y iteration
-                      MOV   DX, imgH              ;  if loop iteration in x direction, then y should start over so that we sweep the grid
-                      DEC   [col_p1]
-                      LEA   DI, img               ; to iterate over the pixels
-                      ADD   DI,[col_p1]
-                      DEC   CX                    ;  loop iteration in x direction
-                      JZ    ENDING_D              ;  both x and y reached 00 so end program
-                      JMP   Drawit_D
-    ENDING_D:         
+                      MOV AX,320d
+                      MUL curYLoc_p1
+                      ADD AX,curXLoc_p1
+                      SUB AX,5136
+                      MOV DI,AX
+                      ClD
+                      LEA SI,img
+                      MOV CX,0
+                      MOV DX,0
+                      p1_label_D:
+                      MOV CX,imgH
+                      rep MOVSB
+                      ADD DI,287
+                      INC DX
+                      CMP DX,33
+                      JNE p1_label_D
                       POPF
                       RET
 DRAW_D ENDP
@@ -394,35 +364,27 @@ DRAW_D ENDP
 DRAW_U PROC
     ;delete previous place (By Coloring its place with same backGround Color)
                       PUSHF
-                      MOV   [col_p1],-imgH
-                      INC   [col_p1]
-                      MOV   AH,0Bh                ;set the configuration
-                      MOV   CX, imgH              ;set the width (X) up to 64 (based on image resolution)
-                      MOV   DX, imgW              ;set the hieght (Y) up to 64 (based on image resolution)
-                      LEA   DI, img               ; to iterate over the pixels
-                      ADD   DI,[col_p1]
-                      JMP   Start_U
-    Drawit_U:         
-                      MOV   AH,0Ch                ;set the configuration to writing a pixel
-                      ADD   CX, curXLoc_p1        ;set the width (X) up to 64 (based on image resolution)
-                      ADD   DX, curYLoc_p1        ;set the hieght (Y) up to 64 (based on image resolution)
-                      MOV   AL, [DI]              ; color of the current coordinates
-                      MOV   BH,00h                ;set the page number
-                      INT   10h                   ;Avoid drawing before the calculations
-                      SUB   CX, curXLoc_p1
-                      SUB   DX, curYLoc_p1
-    Start_U:          
-                      ADD   DI,imgW
-                      DEC   DX                    ;  loop iteration in y direction
-                      JNZ   Drawit_U              ;  check if we can draw current x and y and excape the y iteration
-                      MOV   DX, imgH              ;  if loop iteration in x direction, then y should start over so that we sweep the grid
-                      INC   [col_p1]
-                      LEA   DI, img               ; to iterate over the pixels
-                      SUB   DI,[col_p1]
-                      DEC   CX                    ;  loop iteration in x direction
-                      JZ    ENDING_U              ;  both x and y reached 00 so end program
-                      JMP   Drawit_U
-    ENDING_U:         
+                      MOV AX,320
+                      MUL curYLoc_p1
+                      ADD AX,curXLoc_p1
+                      ADD AX,5136
+                      MOV DI,AX
+                      ClD
+                      LEA SI,img
+                      MOV BX,0
+                      p1_label_U2:
+                      MOV DX,0
+                      p1_label_U:
+                      MOV CX,1
+                      rep MOVSB
+                      SUB DI,2
+                      INC DX
+                      CMP DX,33
+                      JNE p1_label_U
+                      SUB DI,287
+                      INC BX
+                      CMP BX,33
+                      JNE p1_label_U2
                       POPF
                       RET
 DRAW_U ENDP
@@ -432,34 +394,28 @@ DRAW_U ENDP
 ERASE_V PROC
     ;delete previous place (By Coloring its place with same backGround Color)
                       PUSHF
-                      MOV   [col_p1],imgW-1
-                      MOV   AH,0Bh                ;set the configuration
-                      MOV   CX, imgH              ;set the width (X) up to 64 (based on image resolution)
-                      MOV   DX, imgW              ;set the hieght (Y) up to 64 (based on image resolution)
-                      LEA   DI, img               ; to iterate over the pixels
-                      ADD   DI,[col_p1]
-                      JMP   Startt_V
-    Drawitt_V:        
-                      MOV   AH,0Ch                ;set the configuration to writing a pixel
-                      ADD   CX, curXLoc_p1        ;set the width (X) up to 64 (based on image resolution)
-                      ADD   DX, curYLoc_p1        ;set the hieght (Y) up to 64 (based on image resolution)
-                      MOV   AL, 0                 ; color of the current coordinates
-                      MOV   BH,00h                ;set the page number
-                      INT   10h                   ;Avoid drawing before the calculations
-                      SUB   CX, curXLoc_p1
-                      SUB   DX, curYLoc_p1
-    Startt_V:         
-                      ADD   DI,imgH
-                      DEC   DX                    ;  loop iteration in Y direction
-                      JNZ   Drawitt_V             ;  check if we can draw current x and y and escape the y iteration
-                      MOV   DX, imgH              ;  if loop iteration in x direction, then y should start over so that we sweep the grid
-                      DEC   [col_p1]
-                      LEA   DI, img               ; to iterate over the pixels
-                      ADD   DI,[col_p1]
-                      DEC   CX                    ;  loop iteration in X direction
-                      JZ    ENDINGG_V             ;  both x and y reached 00 so end program
-                      JMP   Drawitt_V
-    ENDINGG_V:        
+                      MOV AX,320
+                      MUL curYLoc_p1
+                      ADD AX,curXLoc_p1
+                      SUB AX,5136
+                      MOV DI,AX
+                      ClD
+                      LEA SI,img
+                      MOV BX,0
+                      p1_label_eraseV:
+                      MOV DX,0
+                      p1_label_label_eraseV2:
+                      MOV CX,1
+                      MOV AL,0H
+                      rep STOSB
+                      ADD DI,319
+                      INC DX
+                      CMP DX,33
+                      JNE p1_label_label_eraseV2
+                      SUB DI,10561
+                      INC BX
+                      CMP BX,33
+                      JNE p1_label_eraseV
                       POPF
                       RET
 ERASE_V ENDP
@@ -477,34 +433,27 @@ ERASE_V ENDP
 DRAW_L_p2 PROC
     ;delete previous place (By Coloring its place with same backGround Color)
                       PUSHF
-                      MOV   [col_p2],imgW-1
-                      MOV   AH,0Bh                ;set the configuration
-                      MOV   CX, imgW              ;set the width (X) up to 64 (based on image resolution)
-                      MOV   DX, imgH              ;set the hieght (Y) up to 64 (based on image resolution)
-                      LEA   DI, img2              ; to iterate over the pixels
-                      ADD   DI,[col_p2]
-                      JMP   Start_L_p2
-    Drawit_L_p2:      
-                      MOV   AH,0Ch                ;set the configuration to writing a pixel
-                      ADD   CX, curXLoc_p2        ;set the width (X) up to 64 (based on image resolution)
-                      ADD   DX, curYLoc_p2        ;set the hieght (Y) up to 64 (based on image resolution)
-                      MOV   AL, [DI]              ; color of the current coordinates
-                      MOV   BH,00h                ;set the page number
-                      INT   10h                   ;Avoid drawing before the calculations
-                      SUB   CX, curXLoc_p2
-                      SUB   DX, curYLoc_p2
-    Start_L_p2:       
-                      ADD   DI,32
-                      DEC   CX                    ;  loop iteration in x direction
-                      JNZ   Drawit_L_p2           ;  check if we can draw c urrent x and y and excape the y iteration
-                      MOV   Cx, imgW              ;  if loop iteration in y direction, then x should start over so that we sweep the grid
-                      DEC   [col_p2]
-                      LEA   DI, img2              ; to iterate over the pixels
-                      ADD   DI,[col_p2]
-                      DEC   DX                    ;  loop iteration in y direction
-                      JZ    ENDING_L_p2           ;  both x and y reached 00 so end program
-                      JMP   Drawit_L_p2
-    ENDING_L_p2:      
+                      MOV AX,320
+                      MUL curYLoc_p2
+                      ADD AX,curXLoc_p2
+                      SUB AX,5104
+                      MOV DI,AX
+                      ClD
+                      LEA SI,img2
+                      MOV BX,0
+                      p2_label_L2:
+                      MOV DX,0
+                      p2_label_L:
+                      MOV CX,1
+                      rep MOVSB
+                      ADD DI,319
+                      INC DX
+                      CMP DX,33
+                      JNE p2_label_L
+                      SUB DI,10561
+                      INC BX
+                      CMP BX,33
+                      JNE p2_label_L2
                       POPF
                       RET
 DRAW_L_p2 ENDP
@@ -513,34 +462,27 @@ DRAW_L_p2 ENDP
 DRAW_R_p2 PROC
     ;delete previous place (By Coloring its place with same backGround Color)
                       PUSHF
-                      MOV   [col_p2],imgH*imgW
-                      MOV   AH,0Bh                ;set the configuration
-                      MOV   CX, imgW              ;set the width (X) up to 64 (based on image resolution)
-                      MOV   DX, imgH              ;set the hieght (Y) up to 64 (based on image resolution)
-                      LEA   DI, img2              ; to iterate over the pixels
-                      ADD   DI,[col_p2]
-                      JMP   Start_R_p2
-    Drawit_R_p2:      
-                      MOV   AH,0Ch                ;set the configuration to writing a pixel
-                      ADD   CX, curXLoc_p2        ;set the width (X) up to 64 (based on image resolution)
-                      ADD   DX, curYLoc_p2        ;set the hieght (Y) up to 64 (based on image resolution)
-                      MOV   AL, [DI]              ; color of the current coordinates
-                      MOV   BH,00h                ;set the page number
-                      INT   10h                   ;Avoid drawing before the calculations
-                      SUB   CX, curXLoc_p2
-                      SUB   DX, curYLoc_p2
-    Start_R_p2:       
-                      SUB   DI,32
-                      DEC   CX                    ;  loop iteration in x direction
-                      JNZ   Drawit_R_p2           ;  check if we can draw c urrent x and y and excape the y iteration
-                      MOV   Cx, imgW              ;  if loop iteration in y direction, then x should start over so that we sweep the grid
-                      DEC   [col_p2]
-                      LEA   DI, img2              ; to iterate over the pixels
-                      ADD   DI,[col_p2]
-                      DEC   DX                    ;  loop iteration in y direction
-                      JZ    ENDING_R_p2           ;  both x and y reached 00 so end program
-                      JMP   Drawit_R_p2
-    ENDING_R_p2:      
+                      MOV AX,320
+                      MUL curYLoc_p2
+                      ADD AX,curXLoc_p2
+                      SUB AX,5136
+                      MOV DI,AX
+                      ClD
+                      LEA SI,img2
+                      MOV BX,0
+                      p2_label_R2:
+                      MOV DX,0
+                      p2_label_R:
+                      MOV CX,1
+                      rep MOVSB
+                      ADD DI,319
+                      INC DX
+                      CMP DX,33
+                      JNE p2_label_R
+                      SUB DI,10559
+                      INC BX
+                      CMP BX,33
+                      JNE p2_label_R2
                       POPF
                       RET
 DRAW_R_p2 ENDP
@@ -548,35 +490,24 @@ DRAW_R_p2 ENDP
 
 ERASE_H_p2 PROC
     ;delete previous place (By Coloring its place with same backGround Color)
-                      PUSHF
-                      MOV   [col_p2],imgW-1
-                      MOV   AH,0Bh                ;set the configuration
-                      MOV   CX, imgW              ;set the width (X) up to 64 (based on image resolution)
-                      MOV   DX, imgH              ;set the hieght (Y) up to 64 (based on image resolution)
-                      LEA   DI, img2              ; to iterate over the pixels
-                      ADD   DI,[col_p2]
-                      JMP   Startt_H_p2
-    Drawitt_H_p2:     
-                      MOV   AH,0Ch                ;set the configuration to writing a pixel
-                      ADD   CX, curXLoc_p2        ;set the width (X) up to 64 (based on image resolution)
-                      ADD   DX, curYLoc_p2        ;set the hieght (Y) up to 64 (based on image resolution)
-                      MOV   AL, 0                 ; color of the current coordinates
-                      MOV   BH,00h                ;set the page number
-                      INT   10h                   ;Avoid drawing before the calculations
-                      SUB   CX, curXLoc_p2
-                      SUB   DX, curYLoc_p2
-    Startt_H_p2:      
-                      ADD   DI,imgH
-                      DEC   CX                    ;  loop iteration in x direction
-                      JNZ   Drawitt_H_p2          ;  check if we can draw c urrent x and y and excape the y iteration
-                      MOV   CX, imgW              ;  if loop iteration in y direction, then x should start over so that we sweep the grid
-                      DEC   [col_p2]
-                      LEA   DI, img2              ; to iterate over the pixels
-                      ADD   DI,[col_p2]
-                      DEC   DX                    ;  loop iteration in y direction
-                      JZ    ENDINGG_H_p2          ;  both x and y reached 00 so end program
-                      JMP   Drawitt_H_p2
-    ENDINGG_H_p2:     
+                     PUSHF
+                      MOV AX,320d
+                      MUL curYLoc_p2
+                      ADD AX,curXLoc_p2
+                      SUB AX,5136
+                      MOV DI,AX
+                      ClD
+                      LEA SI,img2
+                      MOV CX,0
+                      MOV DX,0
+                      MOV AL,0H
+                      p2_label_eraseH:
+                      MOV CX,imgH
+                      rep STOSB
+                      ADD DI,287
+                      INC DX
+                      CMP DX,33
+                      JNE p2_label_eraseH
                       POPF
                       RET
 ERASE_H_p2 ENDP
@@ -590,34 +521,22 @@ ERASE_H_p2 ENDP
 DRAW_D_p2 PROC
     ;delete previous place (By Coloring its place with same backGround Color)
                       PUSHF
-                      MOV   [col_p2],imgH*imgW
-                      MOV   AH,0Bh                ;set the configuration
-                      MOV   CX, imgH              ;set the width (X) up to 64 (based on image resolution)
-                      MOV   DX, imgW              ;set the hieght (Y) up to 64 (based on image resolution)
-                      LEA   DI, img2              ; to iterate over the pixels
-                      ADD   DI,[col_p2]
-                      JMP   Start_D_p2
-    Drawit_D_p2:      
-                      MOV   AH,0Ch                ;set the configuration to writing a pixel
-                      ADD   CX, curXLoc_p2        ;set the width (X) up to 64 (based on image resolution)
-                      ADD   DX, curYLoc_p2        ;set the hieght (Y) up to 64 (based on image resolution)
-                      MOV   AL, [DI]              ; color of the current coordinates
-                      MOV   BH,00h                ;set the page number
-                      INT   10h                   ;Avoid drawing before the calculations
-                      SUB   CX, curXLoc_p2
-                      SUB   DX, curYLoc_p2
-    Start_D_p2:       
-                      SUB   DI,imgW
-                      DEC   DX                    ;  loop iteration in y direction
-                      JNZ   Drawit_D_p2           ;  check if we can draw current x and y and excape the y iteration
-                      MOV   DX, imgH              ;  if loop iteration in x direction, then y should start over so that we sweep the grid
-                      DEC   [col_p2]
-                      LEA   DI, img2              ; to iterate over the pixels
-                      ADD   DI,[col_p2]
-                      DEC   CX                    ;  loop iteration in x direction
-                      JZ    ENDING_D_p2           ;  both x and y reached 00 so end program
-                      JMP   Drawit_D_p2
-    ENDING_D_p2:      
+                      MOV AX,320d
+                      MUL curYLoc_p2
+                      ADD AX,curXLoc_p2
+                      SUB AX,5136
+                      MOV DI,AX
+                      ClD
+                      LEA SI,img2
+                      MOV CX,0
+                      MOV DX,0
+                      p2_label_D:
+                      MOV CX,imgH
+                      rep MOVSB
+                      ADD DI,287
+                      INC DX
+                      CMP DX,33
+                      JNE p2_label_D
                       POPF
                       RET
 DRAW_D_p2 ENDP
@@ -626,35 +545,27 @@ DRAW_D_p2 ENDP
 DRAW_U_p2 PROC
     ;delete previous place (By Coloring its place with same backGround Color)
                       PUSHF
-                      MOV   [col_p2],-imgH
-                      INC   [col_p2]
-                      MOV   AH,0Bh                ;set the configuration
-                      MOV   CX, imgH              ;set the width (X) up to 64 (based on image resolution)
-                      MOV   DX, imgW              ;set the hieght (Y) up to 64 (based on image resolution)
-                      LEA   DI, img2              ; to iterate over the pixels
-                      ADD   DI,[col_p2]
-                      JMP   Start_U_p2
-    Drawit_U_p2:      
-                      MOV   AH,0Ch                ;set the configuration to writing a pixel
-                      ADD   CX, curXLoc_p2        ;set the width (X) up to 64 (based on image resolution)
-                      ADD   DX, curYLoc_p2        ;set the hieght (Y) up to 64 (based on image resolution)
-                      MOV   AL, [DI]              ; color of the current coordinates
-                      MOV   BH,00h                ;set the page number
-                      INT   10h                   ;Avoid drawing before the calculations
-                      SUB   CX, curXLoc_p2
-                      SUB   DX, curYLoc_p2
-    Start_U_p2:       
-                      ADD   DI,imgW
-                      DEC   DX                    ;  loop iteration in y direction
-                      JNZ   Drawit_U_p2           ;  check if we can draw current x and y and excape the y iteration
-                      MOV   DX, imgH              ;  if loop iteration in x direction, then y should start over so that we sweep the grid
-                      INC   [col_p2]
-                      LEA   DI, img2              ; to iterate over the pixels
-                      SUB   DI,[col_p2]
-                      DEC   CX                    ;  loop iteration in x direction
-                      JZ    ENDING_U_p2           ;  both x and y reached 00 so end program
-                      JMP   Drawit_U_p2
-    ENDING_U_p2:      
+                      MOV AX,320
+                      MUL curYLoc_p2
+                      ADD AX,curXLoc_p2
+                      ADD AX,5136
+                      MOV DI,AX
+                      ClD
+                      LEA SI,img2
+                      MOV BX,0
+                      p2_label_U2:
+                      MOV DX,0
+                      p2_label_U:
+                      MOV CX,1
+                      rep MOVSB
+                      SUB DI,2
+                      INC DX
+                      CMP DX,33
+                      JNE p2_label_U
+                      SUB DI,287
+                      INC BX
+                      CMP BX,33
+                      JNE p2_label_U2
                       POPF
                       RET
 DRAW_U_p2 ENDP
@@ -664,34 +575,28 @@ DRAW_U_p2 ENDP
 ERASE_V_p2 PROC
     ;delete previous place (By Coloring its place with same backGround Color)
                       PUSHF
-                      MOV   [col_p2],imgW
-                      MOV   AH,0Bh                ;set the configuration
-                      MOV   CX, imgH              ;set the width (X) up to 64 (based on image resolution)
-                      MOV   DX, imgW              ;set the hieght (Y) up to 64 (based on image resolution)
-                      LEA   DI, img2              ; to iterate over the pixels
-                      ADD   DI,[col_p2]
-                      JMP   Startt_V_p2
-    Drawitt_V_p2:     
-                      MOV   AH,0Ch                ;set the configuration to writing a pixel
-                      ADD   CX, curXLoc_p2        ;set the width (X) up to 64 (based on image resolution)
-                      ADD   DX, curYLoc_p2        ;set the hieght (Y) up to 64 (based on image resolution)
-                      MOV   AL, 0                 ; color of the current coordinates
-                      MOV   BH,00h                ;set the page number
-                      INT   10h                   ;Avoid drawing before the calculations
-                      SUB   CX, curXLoc_p2
-                      SUB   DX, curYLoc_p2
-    Startt_V_p2:      
-                      ADD   DI,imgH
-                      DEC   DX                    ;  loop iteration in Y direction
-                      JNZ   Drawitt_V_p2          ;  check if we can draw current x and y and escape the y iteration
-                      MOV   DX, imgH              ;  if loop iteration in x direction, then y should start over so that we sweep the grid
-                      DEC   [col_p2]
-                      LEA   DI, img2              ; to iterate over the pixels
-                      ADD   DI,[col_p2]
-                      DEC   CX                    ;  loop iteration in X direction
-                      JZ    ENDINGG_V_p2          ;  both x and y reached 00 so end program
-                      JMP   Drawitt_V_p2
-    ENDINGG_V_p2:     
+                      MOV AX,320
+                      MUL curYLoc_p2
+                      ADD AX,curXLoc_p2
+                      SUB AX,5136
+                      MOV DI,AX
+                      ClD
+                      LEA SI,img2
+                      MOV BX,0
+                      p2_label_eraseV:
+                      MOV DX,0
+                      p2_label_label_eraseV2:
+                      MOV CX,1
+                      MOV AL,0H
+                      rep STOSB
+                      ADD DI,319
+                      INC DX
+                      CMP DX,33
+                      JNE p2_label_label_eraseV2
+                      SUB DI,10561
+                      INC BX
+                      CMP BX,33
+                      JNE p2_label_eraseV
                       POPF
                       RET
 ERASE_V_p2 ENDP
