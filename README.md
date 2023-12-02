@@ -1,2 +1,3 @@
 # TODO (CAR TEAM) 🛺🛺
-- refactor all the macros in the code to be procedures 
+- Fix No Press case
+- Make the 2 players move at the same time
