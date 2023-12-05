@@ -72,6 +72,9 @@ MAIN PROC FAR
     ; Get Key From Buff Then Decide Its Direction ;
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+
+    CALL CheckMoveP2Down
+
     ; Test
     mov cl,60
     mov di,6450d
@@ -182,6 +185,7 @@ MAIN PROC FAR
                       CALL  DRAW_D
                       JMP   directionDecision
 
+    
     BreakleftJMP:
         JMP move_left
 
@@ -859,7 +863,7 @@ CheckMoveP2Down PROC
                       INC DX
                       CMP DX,imgW
                       JNE p2_label_checkBDown1
-                      SUB DI,307
+                      ADD DI,307
                       INC CX
                       CMP CX,12
                       JNE p2_label_checkBDown2
