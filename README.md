@@ -1,5 +1,5 @@
 # TODO (CAR TEAM) 🛺🛺
-- Fix The "Generate Obstacles" Power-up Start Location
+- fix part of powerup is been taken
 - Integrate The Track & Obstacles Code. 
 - Fix The "Pass Obstacles" Power-up. Redraw The Obstacle Again.
 - Finish The GUI of The Main Screen.
