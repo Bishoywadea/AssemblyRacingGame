@@ -382,8 +382,9 @@ PROC GenerateObstacle_p1
     JE SkipGenerate_p1
     MOV [PowerUpsPlayer1],0
     MOV AX,320
-    MUL [PrevYPlayer1]
-    ADD AX,[PrevXPlayer1]
+    MUL [YPlayer1]
+    ADD AX,4160 -2        ;;ceil(imgh/2)*320 - 2
+    ADD AX,[XPlayer1]
     MOV DI,AX
     MOV AL,GreyClr
     CALL drawSqr
@@ -407,8 +408,9 @@ PROC GenerateObstacle_p2
     JE SkipGenerate_p2
     MOV [PowerUpsPlayer2],0
     MOV AX,320
-    MUL [PrevYPlayer2]
-    ADD AX,[PrevXPlayer2]
+    MUL [YPlayer2]
+    ADD AX,4160 -2        ;;ceil(imgh/2)*320 - 2
+    ADD AX,[XPlayer2]
     MOV DI,AX
     MOV AL,GreyClr
     CALL drawSqr
@@ -776,7 +778,7 @@ PROC main
         CALL drawSqr
         ADD di, 19600
     ;passObstacles
-        MOV al,GreyClr
+        MOV al,BrownClr
         CALL drawSqr
         ADD di, 8200
     ;genObstacles
@@ -826,7 +828,7 @@ PROC main
         MOV [flag],1
         CALL if_player1_fired
         MOV [flag],1
-        CALL if_player2_fired
+        CALL if_player2_fired 
 
     ; if Esc is not pressed, jump back to mainLoop
     CMP [GameFinishFlag], 1
