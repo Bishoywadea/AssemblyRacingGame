@@ -38,7 +38,7 @@ GameFinishFlag  db 0 ;If It's 1 then the game timer has finished
 
 ;Speed parameters
 Slow            EQU 1 ; when the "slow-down" power up is activated
-Normal          EQU 4 ; when no power ups are activated
+Normal          EQU 1 ; when no power ups are activated
 Fast            EQU 10 ; when the "slow-down" power up is activated
 SpeedPlayer1    dW  Normal ; idicates the number of pixels the player1 can MOVe at single loop
 SpeedPlayer2    dw  Normal ; idicates the number of pixels the player2 can MOVe at single loop
@@ -251,6 +251,7 @@ PROC checkPlayer1
     MOV AL,RedClr
     CMP ES:[DI],AL
     JNE p1_checkSlowDown
+    CALL eraseSqr
     MOV [PowerUpsPlayer1],1
     JMP acceptMOVement_p1
 
@@ -259,6 +260,7 @@ PROC checkPlayer1
     MOV AL,BlueClr
     CMP ES:[DI],AL
     JNE p1_checkPassObstacles
+    CALL eraseSqr
     MOV [PowerUpsPlayer1],2
     JMP acceptMOVement_p1
     
@@ -267,6 +269,7 @@ PROC checkPlayer1
     MOV AL,WhiteClr
     CMP ES:[DI],AL
     JNE p1_checkGenerateObstacles
+    CALL eraseSqr
     MOV [PowerUpsPlayer1],3
     JMP acceptMOVement_p1
     
@@ -275,6 +278,7 @@ PROC checkPlayer1
     MOV AL,BrownClr
     CMP ES:[DI],AL
     JNE p1_finshDown
+    CALL eraseSqr
     MOV [PowerUpsPlayer1],4
     JMP acceptMOVement_p1
     
@@ -322,6 +326,7 @@ PROC checkPlayer2
     MOV AL,RedClr
     CMP ES:[DI],AL
     JNE p2_checkSlowDown
+    CALL eraseSqr
     MOV [PowerUpsPlayer2],1
     JMP acceptMOVement_p2
 
@@ -330,6 +335,7 @@ PROC checkPlayer2
     MOV AL,BlueClr
     CMP ES:[DI],AL
     JNE p2_checkPassObstacles
+    CALL eraseSqr
     MOV [PowerUpsPlayer2],2
     JMP acceptMOVement_p2
     
@@ -338,6 +344,7 @@ PROC checkPlayer2
     MOV AL,WhiteClr
     CMP ES:[DI],AL
     JNE p2_checkGenerateObstacles
+    CALL eraseSqr
     MOV [PowerUpsPlayer2],3
     JMP acceptMOVement_p2
     
@@ -346,6 +353,7 @@ PROC checkPlayer2
     MOV AL,BrownClr
     CMP ES:[DI],AL
     JNE p2_finshDown
+    CALL eraseSqr
     MOV [PowerUpsPlayer2],4
     JMP acceptMOVement_p2
 
@@ -763,6 +771,35 @@ PROC drawSqr
     lp1: RET
 ENDP
 
+PROC eraseSqr
+    MOV Al,00H
+    MOV BX,DI;
+    ;deleting right and lower part
+    eraseRight:
+    CMP ES:[DI],Al
+    JE nxtRow
+    MOV ES:[DI],Al
+    INC DI
+    JMP eraseRight
+    nxtRow:
+    ADD DI,320-3-2;
+    CMP ES:[DI],Al
+    JE eraseRight
+    DEC BX
+    MOV DI,BX
+    eraseLeft:
+    CMP ES:[DI],Al
+    JE prevRow
+    MOV ES:[DI],Al
+    DEC DI
+    JMP eraseLeft
+    prevRow:
+    SUB DI,320-3-2;
+    CMP ES:[DI],Al
+    JE eraseLeft
+        RET
+ENDP
+
 PROC main
     CALL drawPlayer1Up
     CALL drawPlayer2Up
@@ -778,7 +815,7 @@ PROC main
         CALL drawSqr
         ADD di, 19600
     ;passObstacles
-        MOV al,BrownClr
+        MOV al,WhiteClr
         CALL drawSqr
         ADD di, 8200
     ;genObstacles
