@@ -1199,14 +1199,19 @@ PROC checkPlayer1
     p1_checkObstaclesVt:
     MOV [XSqr],Cx
     MOV [YSqr],Dx
-    ; MOV AH,0DH
-    ; int 10H
+    MOV AH,0DH
+    int 10H
     CMP AL,GreyClr
     JNE p1_checkSpeedUpVt
     CMP [PassFlagPlayer1],1  
     JNE p1_finshDownVt_brk
     CALL eraseSqr
-	mov [PassFlagPlayer1],0
+    MOV CX,[XSqr]
+    MOV DX,[YSqr]
+    MOV [XSqrToBeDrawn],Cx
+    MOV [YSqrToBeDrawn],Dx
+    MOV [reDrawFlag],1
+	  mov [PassFlagPlayer1],0
     JMP horizontalCheckFor1Vt
 
     ; check if it's a "speed up" power-up
@@ -1241,6 +1246,11 @@ PROC checkPlayer1
     CALL drawSqr
     JMP horizontalCheckFor1Vt
 
+jmp p1_finshDownVt_skip
+    p1_finshDownVt_brk:
+    jmp p1_finshDownVt
+    p1_finshDownVt_skip:
+
 p1_checkFreezeVt:
     ; MOV AH,0DH
     ; int 10H
@@ -1251,10 +1261,10 @@ p1_checkFreezeVt:
     CALL eraseSqr
     MOV [PowerUpsPlayer1],3
 
-    jmp p1_finshDownVt_skip
-    p1_finshDownVt_brk:
-    jmp p1_finshDownVt
-    p1_finshDownVt_skip:
+    ; jmp p1_finshDownVt_skip
+    ; p1_finshDownVt_brk:
+    ; jmp p1_finshDownVt
+    ; p1_finshDownVt_skip:
 
     MOV ClrSqr,NavyClr
      MOV [XSqr],PowerUpsPlayer1_XLoc
@@ -1352,8 +1362,13 @@ PROC checkPlayer1Hz
     JNE p1_checkSpeedUpHz
     CMP [PassFlagPlayer1],1  
     JNE p1_finshDownHz_brk
-
     CALL eraseSqr
+    MOV CX,[XSqr]
+    MOV DX,[YSqr]
+    MOV [XSqrToBeDrawn],Cx
+    MOV [YSqrToBeDrawn],Dx
+    MOV [reDrawFlag],1
+	  mov [PassFlagPlayer1],0
     JMP horizontalCheckFor1Hz
     
     ; check if it's a "speed up" power-up
@@ -1490,23 +1505,29 @@ PROC checkPlayer2
     p2_checkObstacles:
     MOV [XSqr],Cx
     MOV [YSqr],Dx
-    ; MOV AH,0DH
-    ; int 10H
+    MOV AH,0DH
+    int 10H
     CMP AL,GreyClr
     JNE p2_checkSpeedUp
     CMP [PassFlagPlayer2],1  
     JNE p2_finshDown_brk
     CALL eraseSqr
+    MOV CX,[XSqr]
+    MOV DX,[YSqr]
+    MOV [XSqrToBeDrawn],Cx
+    MOV [YSqrToBeDrawn],Dx
+    MOV [reDrawFlag],1
+	  mov [PassFlagPlayer2],0
     JMP horizontalCheckForUp2
 
     ; check if it's a "speed up" power-up
     p2_checkSpeedUp:
-    ; MOV AH,0DH
-    ; int 10H
+    MOV AH,0DH
+    int 10H
     CMP AL,RedClr
     JNE p2_checkSlowDown
-    ; MOV [XSqr],Cx
-    ; MOV [YSqr],Dx
+    MOV [XSqr],Cx
+    MOV [YSqr],Dx
     CALL eraseSqr
     MOV [PowerUpsPlayer2],1
     MOV ClrSqr,RedClr
@@ -1515,10 +1536,16 @@ PROC checkPlayer2
     CALL drawSqr
     JMP horizontalCheckForUp2
 
+
+jmp p2_finshDown_skp
+    p2_finshDown_brk:
+    jmp p2_finshDown
+    p2_finshDown_skp:
+
     ; check if it's a "slow down" power-up
     p2_checkSlowDown:
-    ; MOV AH,0DH
-    ; int 10H
+    MOV AH,0DH
+    int 10H
     CMP AL,BlueClr
     JNE p2_checkFreezeVT
     ; MOV [XSqr],Cx
@@ -1530,10 +1557,10 @@ PROC checkPlayer2
      MOV [YSqr],PowerUps_YLoc
     CALL drawSqr
     JMP horizontalCheckForUp2
-    jmp p2_finshDown_skp
-    p2_finshDown_brk:
-    jmp p2_finshDown
-    p2_finshDown_skp:
+    ; jmp p2_finshDown_skp
+    ; p2_finshDown_brk:
+    ; jmp p2_finshDown
+    ; p2_finshDown_skp:
     ; check if it's a "pass an obstacle" power-up
     
     p2_checkFreezeVT:
@@ -1641,6 +1668,12 @@ PROC checkPlayer2Hz
     CMP [PassFlagPlayer2],1  
     JNE p2_finshDownHz_brk
     CALL eraseSqr
+    MOV CX,[XSqr]
+    MOV DX,[YSqr]
+    MOV [XSqrToBeDrawn],Cx
+    MOV [YSqrToBeDrawn],Dx
+    MOV [reDrawFlag],1
+	  mov [PassFlagPlayer2],0
     JMP horizontalCheckFor2Hz
 
     ; check if it's a "speed up" power-up
@@ -2308,6 +2341,55 @@ PROC eraseSqr
     RET
 ENDP
 
+PROC checkSqr
+    MOV CX,[XSqrToBeDrawn]
+    SUB CX,(obstacleWidth/2)
+    MOV DX,[YSqrToBeDrawn]
+    SUB DX,(obstacleWidth/2)
+    MOV col,0
+    MOV row,0
+    MOV BH,0
+
+    
+    checkSqrL:
+    MOV AH,0DH
+    int 10H
+    CMP AL,BlackClr
+    JNE checkObstaclesSQ
+    INC CX
+    INC col
+    CMP col,(obstacleWidth)
+    JNE checkSqrL
+    MOV CX,[XSqrToBeDrawn]
+    SUB CX,(obstacleWidth/2)
+    INC DX
+    INC row
+    CMP row,(obstacleWidth)
+    MOV col,0
+    JNE checkSqrL
+    RET
+    checkObstaclesSQ:
+    MOV [SqrFlag],0
+    RET
+ENDP
+
+PROC reDrawObs
+    MOV[SqrFlag],1
+    CALL checkSqr
+    CMP [SqrFlag],1
+    JNE fff
+    MOV AX,[XSqrToBeDrawn]
+    MOV [XSqr],Ax
+    MOV AX,[YSqrToBeDrawn]
+    MOV [YSqr],Ax
+    MOV [ClrSqr],GreyClr
+    CALL drawSqr
+    MOV [reDrawFlag],0
+    fff:
+    RET
+ENDP
+
+
 MACRO getString string                 ; get a string from the user, wait for the user to press enter
               lea dx, string
               mov ah, 0Ah
@@ -2597,7 +2679,21 @@ PROC main
 
      ;     ;get the starting time of the game
 
+    MOV ClrSqr,GreyClr
+        MOV [XSqr],550
+        MOV [YSqr],50
+        CALL drawSqr
+
+    MOV ClrSqr,MagnitaClr
+        MOV [XSqr],200
+        MOV [YSqr],50
+        CALL drawSqr
+
      mainLoop:
+     CMP [reDrawFlag],1
+     JNE skipReDraw
+     CALL reDrawObs
+     skipReDraw:
          CALL CheckTimer
          CALL sleepSomeTime
          CALL genRandom
@@ -2759,6 +2855,10 @@ ExitIcon_Y EQU 400
 carW EQU 15
 carH EQU 37
 
+XSqrToBeDrawn DW 0
+YSqrToBeDrawn DW 0
+SqrFlag  DB 0
+reDrawFlag DB 0
 
 ;Players' Flags
 flag            DB 1
