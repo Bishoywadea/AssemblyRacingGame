@@ -32,7 +32,8 @@ PROC checktrack                                             ;check if the pixel 
                         ret
    
 ENDP
- PROC drawdown
+
+PROC drawdown
 
                         CMP  lastmove,0                        ;;if last move up
                         je   terminatedown
@@ -97,8 +98,8 @@ ENDP
     terminatedown:      
                         ret
 ENDP 
-    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
- PROC drawright
+
+PROC drawright
       
      
   
@@ -401,8 +402,6 @@ PROC initialization
                         MOV  finalflag,0
                         ret
  endp
-    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 
 PROC genRandom                                             ;;generate random number from 0 to 4 and store in ah
                         CMP  numrands,0
@@ -432,7 +431,7 @@ PROC genRandom                                             ;;generate random num
     terminaterandom:    
                         RET
  ENDP
-    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 PROC trackend
                         MOV  ah, 0
                         INT  16h
@@ -1949,23 +1948,39 @@ PROC if_ArrowUp_isPressed
     mov [orientaionP1],AX
     CALL checkPlayer1
     CMP [flag],1
-    JNE skip_ArrowUp
+    JNE checkMa7shooraP1Up
     MOV AX,0
     mov [PrevOrientaionP1],AX
     MOV AX,[SpeedPlayer1]
     SUB [YPlayer1],AX
     MOV BX,[YPlayer1]
-    ; MOV [PrevYPlayer1],BX
-    ; ADD [PrevYPlayer1],carH
     MOV [DirectionTOBeDrawn],0
     CALL drawPlayer1
     handleUp_end:
     MOV [flag],1
     RET
+    checkMa7shooraP1Up:
+    MOV [flag],1
+    MOV AX,[SpeedPlayer1]
+    ADD [NextYPlayer1],AX
+    MOV AX,10
+    SUB [NextYPlayer1],AX
+    CALL checkPlayer1
+    CMP [flag],1
+    JNE skip_ArrowUp
+    MOV AX,0
+    mov [PrevOrientaionP1],AX
+    MOV AX,10
+    SUB [YPlayer1],AX
+    MOV BX,[YPlayer1]
+    MOV [DirectionTOBeDrawn],0
+    CALL drawPlayer1
+    MOV [flag],1
+    RET
     skip_ArrowUp:
     MOV AX,[PrevOrientaionP1]
     MOV [orientaionP1],AX
-    MOV AX,[SpeedPlayer1]
+    MOV AX,10
     ADD [NextYPlayer1],AX 
     MOV [flag],1
     CALL drawPlayer1
@@ -1982,23 +1997,39 @@ PROC if_ArrowDown_isPressed
     mov [orientaionP1],AX
     CALL checkPlayer1
     CMP [flag],1
-    JNE skip_ArrowDown
+    JNE checkMa7shooraP1Down
     MOV AX,1
     MOV [PrevOrientaionP1],AX
     MOV AX,[SpeedPlayer1]
     ADD [YPlayer1],AX
     MOV BX,[YPlayer1]
-    ; MOV [PrevYPlayer1],BX
-    ; SUB [PrevYPlayer1],carH
     MOV [DirectionTOBeDrawn],1
     CALL drawPlayer1
     handleDown_end:
     MOV [flag],1
     RET
+    checkMa7shooraP1Down:
+    MOV [flag],1
+    MOV AX,[SpeedPlayer1]
+    SUB [NextYPlayer1],AX
+    MOV AX,10
+    ADD[NextYPlayer1],AX
+    CALL checkPlayer1
+    CMP [flag],1
+    JNE skip_ArrowDown
+    MOV AX,1
+    MOV [PrevOrientaionP1],AX
+    MOV AX,10
+    ADD [YPlayer1],AX
+    MOV BX,[YPlayer1]
+    MOV [DirectionTOBeDrawn],1
+    CALL drawPlayer1
+    MOV [flag],1
+    RET
     skip_ArrowDown:
     MOV AX,[PrevOrientaionP1]
     MOV [orientaionP1],AX
-    MOV AX,[SpeedPlayer1]
+    MOV AX,10
     SUB [NextYPlayer1],AX
     MOV [flag],1
     CALL drawPlayer1
@@ -2081,23 +2112,39 @@ PROC if_W_isPressed
     MOV [orientaionP2],AX
     CALL checkPlayer2
     CMP [flag],1
-    JNE skip_W
+    JNE checkMa7shooraP2Up
     MOV AX,0
     MOV [PrevOrientaionP2],AX
     MOV AX,[SpeedPlayer2]
     SUB [YPlayer2],AX
     MOV BX,[YPlayer2]
-    ; MOV[PrevYPlayer2],BX
-    ; ADD [PrevYPlayer2],carH+obstacleWidth
     MOV [DirectionTOBeDrawn],0
     CALL drawPlayer2
     handleW_end:
     MOV [flag],1
     RET
+    checkMa7shooraP2Up:
+    MOV [flag],1
+    MOV AX,[SpeedPlayer2]
+    ADD [NextYPlayer2],AX
+    MOV AX,10
+    SUB [NextYPlayer2],AX
+    CALL checkPlayer2
+    CMP [flag],1
+    JNE skip_W
+    MOV AX,0
+    mov [PrevOrientaionP2],AX
+    MOV AX,10
+    SUB [YPlayer2],AX
+    MOV BX,[YPlayer2]
+    MOV [DirectionTOBeDrawn],0
+    CALL drawPlayer2
+    MOV [flag],1
+    RET
     skip_W:
     MOV AX,[PrevOrientaionP2]
     MOV [orientaionP2],AX
-    MOV AX,[SpeedPlayer2]
+    MOV AX,10
     ADD[NextYPlayer2],AX
     MOV [flag],1
     CALL drawPlayer2
@@ -2114,23 +2161,39 @@ PROC if_S_isPressed
     MOV [orientaionP2],AX
     CALL checkPlayer2
     CMP [flag],1
-    JNE skip_S
+    JNE checkMa7shooraP2Down
     MOV AX,1
     MOV [PrevOrientaionP2],AX
     MOV AX,[SpeedPlayer2]
     ADD [YPlayer2],AX
     MOV BX,[YPlayer2]
-    ; MOV[PrevYPlayer2],BX
-    ; SUB [PrevYPlayer2],obstacleWidth
     MOV [DirectionTOBeDrawn],1
     CALL drawPlayer2
     handleS_end:
     MOV [flag],1
     RET
+    checkMa7shooraP2Down:
+    MOV [flag],1
+    MOV AX,[SpeedPlayer2]
+    SUB [NextYPlayer2],AX
+    MOV AX,11
+    ADD[NextYPlayer2],AX
+    CALL checkPlayer2
+    CMP [flag],1
+    JNE skip_S
+    MOV AX,1
+    MOV [PrevOrientaionP2],AX
+    MOV AX,11
+    ADD [YPlayer2],AX
+    MOV BX,[YPlayer2]
+    MOV [DirectionTOBeDrawn],1
+    CALL drawPlayer2
+    MOV [flag],1
+    RET
     skip_S:
     MOV AX,[PrevOrientaionP2]
     MOV [orientaionP2],AX
-    MOV AX,[SpeedPlayer2]
+    MOV AX,11
     SUB[NextYPlayer2],AX
     MOV [flag],1
     CALL drawPlayer2
@@ -2781,223 +2844,225 @@ PROC getMode
         call drawchatscreen
 RET 
 ENDP
+
 proc drawchatscreen
-;port initilization
-mov dx,3fbh ; Line Control Register
-mov al,10000000b ;Set Divisor Latch Access Bit
-out dx,al ;Out it
-;Set LSB byte of the Baud Rate Divisor Latch register.
-mov dx,3f8h
-mov al,0ch
-out dx,al
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;Set MSB byte of the Baud Rate Divisor Latch register.
-mov dx,3f9h
-mov al,00h
-out dx,al
-;;;;;;;;;;;;;;;;;;;;;;
-;Set port configuration
-mov dx,3fbh
-mov al,00011011b
-out dx,al     
-;;;;;;;;;;;;;;;;;;;;;
-mov ah, 0      ;open text mode
-mov al, 3
-int 10h
-   
-;;;;;;;;;;;;;;;;;;clear screen 
-mov ax,0600h
-mov bh,07
-mov cx,0
-mov dx,184FH
-int 10h
- 
-;;;;split screen 
-mov ah,06h 
-mov bh, 0fh 
-mov al,0h 
-mov ch ,0h ;;upper screen corner (ch = row, cl = col)
-mov cl ,0h 
-mov dh , divdedx
-mov dl , 79 ;; max screen width 
-int 10h 
+  ;port initilization
+  mov dx,3fbh ; Line Control Register
+  mov al,10000000b ;Set Divisor Latch Access Bit
+  out dx,al ;Out it
+  ;Set LSB byte of the Baud Rate Divisor Latch register.
+  mov dx,3f8h
+  mov al,0ch
+  out dx,al
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;Set MSB byte of the Baud Rate Divisor Latch register.
+  mov dx,3f9h
+  mov al,00h
+  out dx,al
+  ;;;;;;;;;;;;;;;;;;;;;;
+  ;Set port configuration
+  mov dx,3fbh
+  mov al,00011011b
+  out dx,al     
+  ;;;;;;;;;;;;;;;;;;;;;
+  mov ah, 0      ;open text mode
+  mov al, 3
+  int 10h
+    
+  ;;;;;;;;;;;;;;;;;;clear screen 
+  mov ax,0600h
+  mov bh,07
+  mov cx,0
+  mov dx,184FH
+  int 10h
+  
+  ;;;;split screen 
+  mov ah,06h 
+  mov bh, 0fh 
+  mov al,0h 
+  mov ch ,0h ;;upper screen corner (ch = row, cl = col)
+  mov cl ,0h 
+  mov dh , divdedx
+  mov dl , 79 ;; max screen width 
+  int 10h 
 
-mov ah,06h 
-mov al,0h 
-mov bh ,0f0h
-mov ch ,divdedx +1;;upper screen corner (ch = row, cl = col)
-mov cl ,0h 
-mov dh , 24 ;; max screen height
-mov dl , 79 ;; max screen width 
-int 10h 
-;;;;;check if a key is pressed 
-progloop:
-mov ah,1    
-int 16h
-jz dummy2
-jnz send
+  mov ah,06h 
+  mov al,0h 
+  mov bh ,0f0h
+  mov ch ,divdedx +1;;upper screen corner (ch = row, cl = col)
+  mov cl ,0h 
+  mov dh , 24 ;; max screen height
+  mov dl , 79 ;; max screen width 
+  int 10h 
+  ;;;;;check if a key is pressed 
+  progloop:
+  mov ah,1    
+  int 16h
+  jz dummy2
+  jnz send
 
-send:
-mov ah, 0h ; clear buffer , ascii of char in al  
-int 16h
+  send:
+  mov ah, 0h ; clear buffer , ascii of char in al  
+  int 16h
 
-mov value, al 
-cmp al,0dh ; if enter handle newline 
-jnz contsend 
-jz newline 
-dummy2:jmp recieve
+  mov value, al 
+  cmp al,0dh ; if enter handle newline 
+  jnz contsend 
+  jz newline 
+  dummy2:jmp recieve
 
-newline:
-cmp yS, 12 ;reached end of screen 
-jz scrolluu 
-jnz enterpressr 
-scrolluu:
-mov ax,060Dh
-mov bh,04h
-mov ch,0       
-mov cl,0       
-mov dh,12    
-mov dl,79
-int 10h 
-;;;;;;;;;;
-mov xS, 0 
-mov yS, 0
-setcursorS: 
-mov ah,2
-mov bh,0
-mov dl,xS
-mov dh,yS
-int 10h
-;;;;;;;;;;;;;;;;;;;;;;
-jmp printtoscreen
-enterpressr:
-inc yS 
-mov xS, 0 
+  newline:
+  cmp yS, 12 ;reached end of screen 
+  jz scrolluu 
+  jnz enterpressr 
+  scrolluu:
+  mov ax,060Dh
+  mov bh,04h
+  mov ch,0       
+  mov cl,0       
+  mov dh,12    
+  mov dl,79
+  int 10h 
+  ;;;;;;;;;;
+  mov xS, 0 
+  mov yS, 0
+  setcursorS: 
+  mov ah,2
+  mov bh,0
+  mov dl,xS
+  mov dh,yS
+  int 10h
+  ;;;;;;;;;;;;;;;;;;;;;;
+  jmp printtoscreen
+  enterpressr:
+  inc yS 
+  mov xS, 0 
 
 
-contsend:
-setcursor:
-mov ah,2
-mov bh,0
-mov dl,xS
-mov dh,yS
-int 10h
-;if x goes to the end of screen 
-cmp xS, 79
-jz checky 
-jnz printtoscreen 
- checky: 
- cmp yS,12 
- jnz printtoscreen 
-   
-mov ax,060Dh
-mov bh,04h
-mov ch,0       
-mov cl,0       
-mov dh,12    
-mov dl,79
-int 10h
-mov xS,0 
-mov yS,0 
-mov ah,2
-mov bh,0
-mov dl,xS
-mov dh,yS
-int 10h
-printtoscreen:
- mov ah,2 
- mov dl,value 
- int 21h 
- ;;;;;;;;;;;;;;;;;;;
- mov dx, 3fdh 
- trysend: 
- in al,dx 
- and al,00100000b 
- jz recieve
- mov dx,3f8h 
- mov al,value 
- out dx,al 
- cmp al,114d
- savecursorsending:
-mov ah,3h
-mov bh,0h
-int 10h
-mov xS,dl
-mov yS,dh
- jz dummyy 
-dummy3:jmp send
-recieve:
-mov ah,1            ;check if there is key pressed then go to the sending mode
-int 16h
-jnz dummy3
-mov dx , 3FDH ; Line Status Register
+  contsend:
+  setcursor:
+  mov ah,2
+  mov bh,0
+  mov dl,xS
+  mov dh,yS
+  int 10h
+  ;if x goes to the end of screen 
+  cmp xS, 79
+  jz checky 
+  jnz printtoscreen 
+  checky: 
+  cmp yS,12 
+  jnz printtoscreen 
+    
+  mov ax,060Dh
+  mov bh,04h
+  mov ch,0       
+  mov cl,0       
+  mov dh,12    
+  mov dl,79
+  int 10h
+  mov xS,0 
+  mov yS,0 
+  mov ah,2
+  mov bh,0
+  mov dl,xS
+  mov dh,yS
+  int 10h
+  printtoscreen:
+  mov ah,2 
+  mov dl,value 
+  int 21h 
+  ;;;;;;;;;;;;;;;;;;;
+  mov dx, 3fdh 
+  trysend: 
+  in al,dx 
+  and al,00100000b 
+  jz recieve
+  mov dx,3f8h 
+  mov al,value 
+  out dx,al 
+  cmp al,114d
+  savecursorsending:
+  mov ah,3h
+  mov bh,0h
+  int 10h
+  mov xS,dl
+  mov yS,dh
+  jz dummyy 
+  dummy3:jmp send
+  recieve:
+  mov ah,1            ;check if there is key pressed then go to the sending mode
+  int 16h
+  jnz dummy3
+  mov dx , 3FDH ; Line Status Register
 
-in al , dx
-AND al , 1
-JZ recieve
+  in al , dx
+  AND al , 1
+  JZ recieve
 
-;If Ready read the VALUE in Receive data register
+  ;If Ready read the VALUE in Receive data register
 
-mov dx , 03F8H
-in al , dx
-mov value, al 
-jmp skipoall
-dummyy: jmp endchat 
-skipoall:
-cmp al,27  
-jz endchat
-cmp value, 0dh 
-jnz continuerecieve 
-jz newlineR 
-newlineR:
-cmp yR,24
-JZ endofrowsR
-jnz endofcolR
-endofrowsR:
-mov ax,060Ch
-mov bh,40h
-mov ch,13     
-mov cl,0        
-mov dh,24    
-mov dl,79 
-int 10h 
+  mov dx , 03F8H
+  in al , dx
+  mov value, al 
+  jmp skipoall
+  dummyy: jmp endchat 
+  skipoall:
+  cmp al,27  
+  jz endchat
+  cmp value, 0dh 
+  jnz continuerecieve 
+  jz newlineR 
+  newlineR:
+  cmp yR,24
+  JZ endofrowsR
+  jnz endofcolR
+  endofrowsR:
+  mov ax,060Ch
+  mov bh,40h
+  mov ch,13     
+  mov cl,0        
+  mov dh,24    
+  mov dl,79 
+  int 10h 
 
-mov xR,0
-mov yR,0Dh
-mov ah,2
-mov bh,0
-mov dl,xR
-mov dh,yR
-int 10h
-jmp printR
+  mov xR,0
+  mov yR,0Dh
+  mov ah,2
+  mov bh,0
+  mov dl,xR
+  mov dh,yR
+  int 10h
+  jmp printR
 
-endofcolR:
-inc yR
-mov xR,0
+  endofcolR:
+  inc yR
+  mov xR,0
 
-continuerecieve:
-setcursorR:
-mov ah,2
-mov bh,0
-mov dl,xR
-mov dh,yR
-CMP xR,79
-jnz printR
-;;;;;;;;;;;;;;;;;;
-printR: 
-mov ah,2 
-mov dl,value
-int 21h  
-saveCursorRecieving:
-mov ah,3h
-mov bh,0h
-int 10h
-mov xR,dl
-mov yR,dh
-jmp progloop
-endchat:
-RET 
+  continuerecieve:
+  setcursorR:
+  mov ah,2
+  mov bh,0
+  mov dl,xR
+  mov dh,yR
+  CMP xR,79
+  jnz printR
+  ;;;;;;;;;;;;;;;;;;
+  printR: 
+  mov ah,2 
+  mov dl,value
+  int 21h  
+  saveCursorRecieving:
+  mov ah,3h
+  mov bh,0h
+  int 10h
+  mov xR,dl
+  mov yR,dh
+  jmp progloop
+  endchat:
+  RET 
 ENDP
+
 PROC EnterGraphicsMode
     MOV    AX,VIDEO_MODE
     MOV    BX,VIDEO_MODE_BX
@@ -3213,7 +3278,7 @@ ENDP
 
 PROC main
     mov AX,@data     ;initializing the data segemnt
-	mov                  DS,AX
+	  mov                  DS,AX
     ;   Set video mode
     CALL EnterGraphicsMode
     CALL getPlayersName
