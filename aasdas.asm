@@ -7,6 +7,7 @@ MODEL compact
 STACK 100h
 
 CODESEG
+
 PROC checktrack                                             ;check if the pixel is already colored
                         PUSH ax
                         PUSH bx
@@ -123,7 +124,9 @@ ENDP
                         jg   terminateright
                         MOV  si,0
     drawrightpixel:     
-                        MOV  cx,0
+                        MOV  cx,col
+                        mov rightCol,cx
+                        mov cx,0
    
     repeatR:            
     ;checkbounds
@@ -151,12 +154,14 @@ ENDP
                         jnz  repeatR
 
                         INC  col
+                        inc rightCol
                         sub  row,trackwidth
-   
+                         
                         INC  si
                         CMP  si,upsectionlenght
                         jnz  drawrightpixel
                         INC  numsectionsmoved
+                       
     terminateright:     
                         ret
 
@@ -270,10 +275,32 @@ PROC drawup
                         MOV  trackcheck,0
                         CALL checktrack
                         CMP  trackcheck,1
+                        MOV  row,ax
+                        POP ax
+                        ;;;;;;;;;;;;;;;;;;;;;;;;;;
+                        push cx 
+                        mov cx, trackwidth*4
+                        loopcheckup:
+                        
+                        PUSH ax
+                        MOV  ax, row
+                        sub  row,1
+                        MOV  trackcheck,0
+                        CALL checktrack
+                        CMP  trackcheck,1
 
                         MOV  row,ax
                         POP ax
-                        je   skip00
+                        je   terminateupR 
+                        dec cx 
+                        cmp cx, 0
+                        jne  loopcheckup
+                        JMP skipterminateupR
+                        terminateupR:
+                            pop cx
+                            JMP skip00
+                        skipterminateupR:
+                        pop cx 
                         CMP  col,rightlimit-trackwidth
                         jg   skip00
                         CMP  row, uplimit+trackwidth
@@ -291,8 +318,13 @@ PROC drawup
    
                         MOV  si,0
     drawuppixel:        
+                                            JMP  skip01
+    skip00:             
+                        JMP  terminateup
+    skip01:       
                         CMP  row,uplimit+trackwidth
                         jle  terminateup
+      
                         PUSH ax
                         MOV  ax,row
                         sub  row,trackwidth
@@ -304,10 +336,7 @@ PROC drawup
                         POP ax
                         je   terminateup
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-                        JMP  skip01
-    skip00:             
-                        JMP  terminateup
-    skip01:             
+    
                         MOV  cx,trackwidth
     drawupline:         
 
@@ -347,8 +376,21 @@ PROC drawup
  endp
 
 PROC initialization
-                      
-                        MOV  col,leftlimit
+                    CALL RandomNum
+                    MOV  START_X_LIMIT,ax
+                    CMP START_X_LIMIT,1
+                    JA START_AT_RIGHT
+
+                    MOV  START_X_LIMIT,leftlimit
+                    JMP START_TRACK_POSITION
+                    START_AT_RIGHT:
+                    MOV  START_X_LIMIT,rightlimit
+                    JMP START_TRACK_POSITION
+                    START_TRACK_POSITION:
+                        PUSH CX
+                        MOV CX,START_X_LIMIT
+                        MOV  col,CX
+                        POP CX
                         MOV  row,uplimit
                         MOV  numrands,25d
                         MOV  numsectionsmoved,0
@@ -369,10 +411,15 @@ PROC genRandom                                             ;;generate random num
                         JMP  skipsetFF
     setFF:              
                         MOV  finalflag,1
+                        mov ah,finalflag
                         JMP  terminaterandom
     skipsetFF:          
-                        MOV  si,0fffh
+                        MOV  si,0FFFh
     looprand:                                                  ;loop to slow down
+                        mov cx,0 
+                        mov dx,0bfffh 
+                        mov ah,86h
+                        int 15h 
                         MOV  ah, 2ch
                         INT  21h
                         MOV  ah, 0
@@ -382,7 +429,7 @@ PROC genRandom                                             ;;generate random num
     ;;; ah = rest
                         DEC  si
                         CMP  si,0
-                        jnz  looprand
+                        ;jnz  looprand
     terminaterandom:    
                         RET
  ENDP
@@ -436,9 +483,11 @@ PROC drawFinishLine
                         JMP  drawagain
     skiippp:            
     checkother:         
-                        CMP  lastmove,1
+                        CMP  lastmove,1 ;;right
                         jne  checkother2
-                        sub  col,1
+                        dec col
+                        mov si,rightCol
+                        mov col,si
                         MOV  si,5
     repeatRfinWIDTH:    
                         MOV  cx,0
@@ -541,9 +590,6 @@ PROC drawFinishLine
  endp
 
 PROC generateObstacles
-    CMP rand_POWERUPS_COUNT,0
-    JNE genObstacles
-    ret 
     genObstacles:       
     ;;generate a random x and a random y
     ;;check en mafesh 7waleha obstacles tanya w enaha track aslan
@@ -586,12 +632,12 @@ PROC generateObstacles
                         MOV  bl, GenarraySize
                         div  bl
         
-                        MOV  al,ah
+                        MOV  al,ah ;;ah is reminder
                         MOV  ah,0
                         CMP startFlag,0 ;;;THIS GENERATES JUST POWER UPS DURING THE GAME
                         JNE trackObs
-                        CMP AX,0
-                        JNE trackObs
+                        CMP AX,3 ;;color is obstacle color
+                        JA trackObs
                         RET 
                         trackObs:
                         MOV  di,ax
@@ -604,12 +650,18 @@ PROC generateObstacles
     ;;check no nearby obstacles (not in col+obstaclewidth*2 and col-obstaclewidth
     ;;for cuurenty from row-obstaclewidth to row+obstaclewidth*2
     ;;;;;;;;
+        CMP row, downlimit-obstacleWidth
+        JB draw_obstacle
+        RET 
+        draw_obstacle:
                         PUSH col
                         PUSH row
+
+
     ;;                                              *******
-                        sub  col,obstacleWidth            ;;;;;;;;;;;;;;;;;;;  ** __****
+                        sub  col,obstacleWidth*2            ;;;;;;;;;;;;;;;;;;;  ** __****
                         MOV  si,obstacleWidth*5                ;; **|    |**** ;;say en el square da el obstacle,
-                        sub  row,obstacleWidth            ;;**|    |***  ehna bn check mkano w 7waleh in all
+                        sub  row,obstacleWidth*2                  ;;**|    |***  ehna bn check mkano w 7waleh in all
     squareOuterCheck:                                          ;;  ** __ **** directions
                         MOV  cx,obstacleWidth*5                ;;   ********
     squareInnerCheck:   
@@ -633,7 +685,7 @@ PROC generateObstacles
                         CMP  si,0
                         jnz  squareOuterCheck
 
-    ;;;
+                        
                         POP row
                         POP col
     ;;;
@@ -674,16 +726,18 @@ PROC generateObstacles
                         INC  numobs
     ;JMPskip_draw_obstacle2
     ;skip_draw_obstacle:
-    ; POProw
-    ;POPcol
+    
                         JMP  skip_draw_obstacle2
     skip_draw_obstacle: 
                         POP row
                         POP col
+
     skip_draw_obstacle2:
-                        MOV  di,rand_POWERUPS_COUNT
+                        ;MOV  di,rand_POWERUPS_COUNT
                         CMP  numobs,di
-                        jl   genObstaclesINTER
+                        cmp numobs,9d
+
+                        ;jle   genObstaclesINTER
     ;jge trackendinter
                         ret
  endp
@@ -693,8 +747,171 @@ PROC drawTrack
                         CALL initialization
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     randomfunc:         
+                        CMP recFlag,1
+                        JE recieve_track
                         CALL genRandom                         ;returns random from 0-4 in AH
+                        mov value,ah
+                        ;send the direction to the other player
+                        JMP dontrecTrack
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+
+recieve_track:
+    ;                     mov value,al
+
+    ; send:
+
+    ;         mov value, al 
+    ;         cmp al,0dh ; if enter handle newline 
+    ;         jnz contsend 
+    ;         dummy2:jmp recieve
+
+
+    ;         contsend:
+    ;         setcursor:
+    ;         mov ah,2
+    ;         mov bh,0
+    ;         mov dl,xS
+    ;         mov dh,yS
+    ;         int 10h
+    ;         ;if x goes to the end of screen 
+    ;         cmp xS, 79
+    ;         jz checky 
+    ;         jnz printtoscreen 
+    ;         checky: 
+    ;         cmp yS,12 
+    ;         jnz printtoscreen 
+            
+    ;         mov ax,060Dh
+    ;         mov bh,04h
+    ;         mov ch,0       
+    ;         mov cl,0       
+    ;         mov dh,12    
+    ;         mov dl,79
+    ;         int 10h
+    ;         mov xS,0 
+    ;         mov yS,0 
+    ;         mov ah,2
+    ;         mov bh,0
+    ;         mov dl,xS
+    ;         mov dh,yS
+    ;         int 10h
+    ;         printtoscreen:
+    ;         mov ah,2 
+    ;         mov dl,value 
+    ;         int 21h 
+    ;         ;;;;;;;;;;;;;;;;;;;
+    ;         mov dx, 3fdh 
+    ;         trysend: 
+    ;         in al,dx 
+    ;         and al,00100000b 
+    ;         jz recieve
+    ;         mov dx,3f8h 
+    ;         mov al,value 
+    ;         out dx,al 
+    ;         cmp al,114d
+    ;         savecursorsending:
+    ;         mov ah,3h
+    ;         mov bh,0h
+    ;         int 10h
+    ;         mov xS,dl
+    ;         mov yS,dh
+    ;         jz dummyy 
+    ;         dummy3:jmp send
+    ;         recieve:
+    ;         mov ah,1            ;check if there is key pressed then go to the sending mode
+    ;         int 16h
+    ;         jnz dummy3
+    ;         mov dx , 3FDH ; Line Status Register
+
+    ;         in al , dx
+    ;         AND al , 1
+    ;         JZ recieve
+
+    ;         ;If Ready read the VALUE in Receive data register
+
+    ;         mov dx , 03F8H
+    ;         in al , dx
+    ;         mov value, al 
+    ;         jmp skipoall
+    ;         dummyy: jmp endchat 
+    ;         skipoall:
+    ;         cmp al,27  
+    ;         jz endchat
+    ;         cmp value, 0dh 
+    ;         jnz continuerecieve 
+    ;         jz newlineR 
+    ;         newlineR:
+    ;         cmp yR,24
+    ;         JZ endofrowsR
+    ;         jnz endofcolR
+    ;         endofrowsR:
+    ;         mov ax,060Ch
+    ;         mov bh,40h
+    ;         mov ch,13     
+    ;         mov cl,0        
+    ;         mov dh,24    
+    ;         mov dl,79 
+    ;         int 10h 
+
+    ;         mov xR,0
+    ;         mov yR,0Dh
+    ;         mov ah,2
+    ;         mov bh,0
+    ;         mov dl,xR
+    ;         mov dh,yR
+    ;         int 10h
+    ;         jmp printR
+
+    ;         endofcolR:
+    ;         inc yR
+    ;         mov xR,0
+
+    ;         continuerecieve:
+    ;         setcursorR:
+    ;         mov ah,2
+    ;         mov bh,0
+    ;         mov dl,xR
+    ;         mov dh,yR
+    ;         CMP xR,79
+    ;         jnz printR
+    ;         ;;;;;;;;;;;;;;;;;;
+    ;         printR: 
+    ;         mov ah,2 
+    ;         mov dl,value
+    ;         int 21h  
+    ;         saveCursorRecieving:
+    ;         mov ah,3h
+    ;         mov bh,0h
+    ;         int 10h
+    ;         mov xR,dl
+    ;         mov yR,dh
+    ;         jmp progloop
+    ;         endchat:
+
+
+
+
+
+
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+dontrecTrack:
                         CMP  finalflag,1
                         je   final
 
@@ -703,7 +920,7 @@ PROC drawTrack
                         jne  skip6
                         MOV  ah,1
     skip6:              
-
+                        
 
                         DEC  numrands
 
@@ -747,13 +964,11 @@ PROC drawTrack
                         JMP  init
     ;mark end of track
     endtrack:           
-                        MOV startFlag,1
-                        CALL RandomObstaclesNum
-                        CALL generateObstacles
+                        MOV startFlag,1 ;;awel ma el track etrsm
                         ret
  endp
 
-PROC RandomObstaclesNum
+PROC RandomNum
                        MOV  ah, 2ch
                         INT  21h
                         MOV  ah, 0
@@ -763,7 +978,6 @@ PROC RandomObstaclesNum
                         add  ah,2
                         MOV  al,ah
                         MOV  ah,0
-                        MOV  rand_POWERUPS_COUNT,ax
 ENDP
 
 PROC sleepSomeTime
@@ -780,27 +994,27 @@ push dx
 push bx
 push cx 
 
+mov al,120
+SUB al,StopTimer
 mov ah,00h
-mov al,StopTimer
 ;get hundreds digit
 mov bl,100
 div bl
 push ax
 add al,48
-mov bh,0
-mov cx,1h
 
-mov dx, 00h
-mov ah,02h
-int 10h
+LEA DI,TimerGameDisplay+2
+MOV [DI],AL
+INC DI
+; mov bh,0
+; mov cx,1h
+; mov ah,09h
+; int 10h
 
-mov ah,09h
-int 10h
-
-;move cursor
-mov dx, 01h
-mov ah,02h
-int 10h
+; ;move cursor
+; mov dx, 01h
+; mov ah,02h
+; int 10h
 
 pop ax
 mov al,ah
@@ -812,23 +1026,27 @@ push ax
 mov bh,0
 mov cx,1h
 add al,48
-mov ah,09h
-int 10h
 
-;move cursor
-mov dx, 02h
-mov ah,02h
-int 10h
+MOV [DI],AL
+INC DI
+
+; mov ah,09h
+; int 10h
+
+; ;move cursor
+; mov dx, 02h
+; mov ah,02h
+; int 10h
 
 ;get ones digit
 pop ax
 mov al,ah
 add al,48 
-mov bh,0
-mov cx,1h
-mov ah,09h
-int 10h
-
+; mov bh,0
+; mov cx,1h
+; mov ah,09h
+; int 10h
+MOV [DI],AL
 pop cx
 pop bx
 pop dx
@@ -848,7 +1066,8 @@ PROC CheckTimer
     ADD AX,DX
     SUB AX,[TimerGame]
     mov StopTimer,al
-    CMP StopTimer,120
+    MOV BL,Stopping_Limit
+    CMP StopTimer,BL
     JL GameNotFinished
     MOV [GameFinishFlag],1
     RET
@@ -1246,9 +1465,9 @@ PROC checkPlayer1
     CALL drawSqr
     JMP horizontalCheckFor1Vt
 
-jmp p1_finshDownVt_skip
+JMP p1_finshDownVt_skip
     p1_finshDownVt_brk:
-    jmp p1_finshDownVt
+    JMP p1_finshDownVt
     p1_finshDownVt_skip:
 
 p1_checkFreezeVt:
@@ -1261,9 +1480,9 @@ p1_checkFreezeVt:
     CALL eraseSqr
     MOV [PowerUpsPlayer1],3
 
-    ; jmp p1_finshDownVt_skip
+    ; JMP p1_finshDownVt_skip
     ; p1_finshDownVt_brk:
-    ; jmp p1_finshDownVt
+    ; JMP p1_finshDownVt
     ; p1_finshDownVt_skip:
 
     MOV ClrSqr,NavyClr
@@ -1307,11 +1526,11 @@ p1_checkFreezeVt:
     
     ; check if it's the end of the Track
     P1_CHECKFINISHtRACK_VT:
-    ; MOV AH,0DH
-    ; int 10H
+    MOV AH,0DH
+    int 10H
     CMP AL,YellowClr
     JNE p1_finshDownVt
-    mov WinnerFlag,1
+    MOV [WinnerFlag],1
     MOV GameFinishFlag,1
     RET
 
@@ -1403,9 +1622,9 @@ PROC checkPlayer1Hz
     CALL drawSqr
     JMP horizontalCheckFor1Hz
     
-    jmp p1_finshDownHz_skp
+    JMP p1_finshDownHz_skp
     p1_finshDownHz_brk:
-    jmp p1_finshDownHz
+    JMP p1_finshDownHz
     p1_finshDownHz_skp:
 
 p1_checkFreezeHZ:
@@ -1457,11 +1676,11 @@ p1_checkFreezeHZ:
     
     ; check if it's the end of the Track
     P1_CHECKFINISHtRACK_HZ:
-    ; MOV AH,0DH
-    ; int 10H
+    MOV AH,0DH
+    int 10H
     CMP AL,YellowClr
     JNE p1_finshDownHz
-        mov WinnerFlag,1
+    MOV [WinnerFlag],1
     MOV GameFinishFlag,1
     RET
     p1_finshDownHz:
@@ -1537,9 +1756,9 @@ PROC checkPlayer2
     JMP horizontalCheckForUp2
 
 
-jmp p2_finshDown_skp
+JMP p2_finshDown_skp
     p2_finshDown_brk:
-    jmp p2_finshDown
+    JMP p2_finshDown
     p2_finshDown_skp:
 
     ; check if it's a "slow down" power-up
@@ -1557,10 +1776,12 @@ jmp p2_finshDown_skp
      MOV [YSqr],PowerUps_YLoc
     CALL drawSqr
     JMP horizontalCheckForUp2
-    ; jmp p2_finshDown_skp
+    ; JMP p2_finshDown_skp
     ; p2_finshDown_brk:
-    ; jmp p2_finshDown
+    ; JMP p2_finshDown
     ; p2_finshDown_skp:
+
+
     ; check if it's a "pass an obstacle" power-up
     
     p2_checkFreezeVT:
@@ -1573,7 +1794,7 @@ jmp p2_finshDown_skp
     CALL eraseSqr
     MOV [PowerUpsPlayer2],3
     MOV ClrSqr,NavyClr
-     MOV [XSqr],PowerUpsPlayer1_XLoc
+     MOV [XSqr],PowerUpsPlayer2_XLoc
      MOV [YSqr],PowerUps_YLoc
     CALL drawSqr
     JMP horizontalCheckForUp2
@@ -1612,11 +1833,11 @@ jmp p2_finshDown_skp
     
     ; check if it's the end of the Track
     P2_CHECKFINISHtRACK_Vt:
-    ; MOV AH,0DH
-    ; int 10H
+    MOV AH,0DH
+    int 10H
     CMP AL,YellowClr
     JNE p2_finshDown
-        mov WinnerFlag,2
+    MOV [WinnerFlag],2
     MOV GameFinishFlag,1
     RET
 
@@ -1673,7 +1894,7 @@ PROC checkPlayer2Hz
     MOV [XSqrToBeDrawn],Cx
     MOV [YSqrToBeDrawn],Dx
     MOV [reDrawFlag],1
-	  mov [PassFlagPlayer2],0
+	MOV [PassFlagPlayer2],0
     JMP horizontalCheckFor2Hz
 
     ; check if it's a "speed up" power-up
@@ -1687,8 +1908,8 @@ PROC checkPlayer2Hz
     CALL eraseSqr
     MOV [PowerUpsPlayer2],1
     MOV ClrSqr,RedClr
-     MOV [XSqr],PowerUpsPlayer2_XLoc
-     MOV [YSqr],PowerUps_YLoc
+    MOV [XSqr],PowerUpsPlayer2_XLoc
+    MOV [YSqr],PowerUps_YLoc
     CALL drawSqr
     JMP horizontalCheckFor2Hz
 
@@ -1703,14 +1924,14 @@ PROC checkPlayer2Hz
     CALL eraseSqr
     MOV [PowerUpsPlayer2],2
     MOV ClrSqr,BlueClr
-     MOV [XSqr],PowerUpsPlayer2_XLoc
-     MOV [YSqr],PowerUps_YLoc
+    MOV [XSqr],PowerUpsPlayer2_XLoc
+    MOV [YSqr],PowerUps_YLoc
     CALL drawSqr
     JMP horizontalCheckFor2Hz
 
-    jmp p2_finshDownHz_skp
+    JMP p2_finshDownHz_skp
     p2_finshDownHz_brk:
-    jmp p2_finshDownHz
+    JMP p2_finshDownHz
     p2_finshDownHz_skp:
     ; check if it's a "pass an obstacle" power-up
     
@@ -1724,7 +1945,7 @@ PROC checkPlayer2Hz
     CALL eraseSqr
     MOV [PowerUpsPlayer2],3
     MOV ClrSqr,NavyClr
-     MOV [XSqr],PowerUpsPlayer1_XLoc
+     MOV [XSqr],PowerUpsPlayer2_XLoc
      MOV [YSqr],PowerUps_YLoc
     CALL drawSqr
     JMP horizontalCheckForUp2
@@ -1739,8 +1960,8 @@ PROC checkPlayer2Hz
     CALL eraseSqr
     MOV [PowerUpsPlayer2],4
     MOV ClrSqr,MagnitaClr
-     MOV [XSqr],PowerUpsPlayer2_XLoc
-     MOV [YSqr],PowerUps_YLoc
+    MOV [XSqr],PowerUpsPlayer2_XLoc
+    MOV [YSqr],PowerUps_YLoc
     CALL drawSqr
     JMP horizontalCheckFor2Hz
     
@@ -1755,8 +1976,8 @@ PROC checkPlayer2Hz
     CALL eraseSqr
     MOV [PowerUpsPlayer2],5
     MOV ClrSqr,BrownClr
-     MOV [XSqr],PowerUpsPlayer2_XLoc
-     MOV [YSqr],PowerUps_YLoc
+    MOV [XSqr],PowerUpsPlayer2_XLoc
+    MOV [YSqr],PowerUps_YLoc
     CALL drawSqr
     JMP horizontalCheckFor2Hz
     
@@ -1767,8 +1988,8 @@ PROC checkPlayer2Hz
     ; int 10H
     CMP AL,YellowClr
     JNE p2_finshDownHz
-    MOV WinnerFlag,2
-    MOV GameFinishFlag,1
+    MOV [WinnerFlag],2
+    MOV [GameFinishFlag],1
     RET
 
     p2_finshDownHz:
@@ -2230,11 +2451,12 @@ CMP [KeyList + KeyY], 1
     CMP [PowerUpsPlayer2],2
     JNE CHECK_FREEZW_P2    
     MOV [SpeedPlayer1],Slow
+    JMP setTimer_p2
     
     CHECK_FREEZW_P2:
-    CMP [PowerUpsPlayer1],3
+    CMP [PowerUpsPlayer2],3
     JNE CheckPassObs_p2    
-    MOV [SpeedPlayer2],freeze
+    MOV [SpeedPlayer1],freeze
     
     setTimer_p2:
     MOV AH,2CH
@@ -2518,21 +2740,23 @@ PROC Draw_backGround
     DRAW_LOOP_backGrnd:
     INT 10H
     INC CX
-    CMP CX,639
+    CMP CX,641
     JNZ DRAW_LOOP_backGrnd
     MOV CX,0
     INC DX
     CMP backgrndClr,0
     JNE greenBackGrndLooP
-    CMP DX,479
+    CMP DX,450
     JNZ DRAW_LOOP_backGrnd
     ret
 greenBackGrndLooP:    CMP DX,399
     JNZ DRAW_LOOP_backGrnd
     ret
 ENDP
-MACRO getPlayersName                                                                 
-    ;////////////////////////////// get player1 name
+
+PROC DrawmMainPage
+        CALL EnterGraphicsMode
+        MOV backgrndClr,0
         CALL Draw_backGround
         MOV backgrndClr,1
         CALL logoDraw
@@ -2548,15 +2772,159 @@ MACRO getPlayersName
         INC DX
         CMP DX,LOGO_YLOC+logoH
         JNZ DRAW_heal_backGrnd
-    
-        printStringAtLoc getName_p1, 13, 28
-        getString        playername1
-        printStringAtLoc getName_p2, 15, 28
-        getString        playername2
-ENDM
 
-MACRO getMode                                                                
+    ;Draw notifications bar
+        MOV CX,0
+        MOV DX,450
+        MOV BH,0
+        MOV AH,0CH
+        MOV AL,0
+        DRAW_natifications_backGrnd:
+        INT 10H
+        INC CX
+        CMP CX,641
+        JNZ DRAW_natifications_backGrnd
+RET
+ENDP
+
+PROC getPlayersName
+    CALL InPort
+
     ;////////////////////////////// get player1 name
+    getPlayer1Name:
+    CALL DrawmMainPage
+    MOV NameValidationFlag,0
+    printStringAtLoc Name_p1_label, 13, 28
+    ;validate if first char is letter
+    CALL getFirstLetter_p1
+    CMP[NameValidationFlag],1
+    JNE firstNameisLetterp1
+    printStringAtLoc invalidStart, 15, 28
+    MOV AH,00H
+    INT 16H
+    JMP getPlayer1Name
+    firstNameisLetterp1:
+    MOV value,al
+    
+    CALL getName_p1
+    
+    
+    getPlayer2Name:
+    MOV NameValidationFlag,0
+    printStringAtLoc Name_p2_label, 15, 28
+    ;validate if first char is letter
+    CALL getFirstLetter_p2
+    CMP[NameValidationFlag],1
+    JNE firstNameisLetterp2
+    printStringAtLoc invalidStart, 17, 28
+    MOV AH,00H
+    INT 16H
+    JMP getPlayer2Name
+firstNameisLetterp2:
+    CALL getName_p2
+RET
+ENDP
+
+PROC getFirstLetter_p1
+MOV Bh,0
+MOV AH,07H
+INT 21h
+MOV DL,AL
+MOV AH,02H
+INT 21h
+	               cmp   al, 65                    	; 'A'
+	               JB    invalidChar
+	; 65 <= char
+	               cmp   al, 122                   	; 'z'
+	               JA    invalidChar
+	; 65 <= char <= 122
+	               cmp   al, 90                    	; 'Z'
+	               jA    secondCheck
+	; 65 <= char <= 90
+	               jmp   validChar
+	secondCheck:   
+	               cmp   al, 97                    	; 'a'
+	               jb    invalidChar
+JMP validChar
+invalidChar:
+MOV [NameValidationFlag],1
+validChar:
+LEA DI,playerName1+2
+MOV [DI],AL
+RET
+ENDP
+
+PROC getFirstLetter_p2
+MOV Bh,0
+MOV AH,07H
+INT 21h
+MOV DL,AL
+MOV AH,02H
+INT 21h
+	               cmp   al, 65                    	; 'A'
+	               JB    invalidChar2
+	; 65 <= char
+	               cmp   al, 122                   	; 'z'
+	               JA    invalidChar2
+	; 65 <= char <= 122
+	               cmp   al, 90                    	; 'Z'
+	               jA    secondCheck2
+	; 65 <= char <= 90
+	               jmp   validChar2
+	secondCheck2:   
+	               cmp   al, 97                    	; 'a'
+	               jb    invalidChar2
+JMP validChar2
+invalidChar2:
+MOV [NameValidationFlag],1
+validChar2:
+LEA DI,playerName2+2
+MOV [DI],AL
+RET
+ENDP
+
+PROC getName_p1
+LEA DI,playerName1+3
+MOV CX,14
+GetNameLoop:
+MOV Bh,0
+MOV AH,07H
+INT 21h
+CMP AL,13 ;Enter Key
+JE NameIsInserted
+MOV DL,AL
+MOV AH,02H
+INT 21h
+MOV [DI],AL
+INC DI
+DEC CX
+JNZ GetNameLoop
+NameIsInserted:
+RET
+ENDP
+
+PROC getName_p2
+LEA DI,playerName2+3
+MOV CX,14
+GetNameLoop2:
+MOV Bh,0
+MOV AH,07H
+INT 21h
+CMP AL,13 ;Enter Key
+JE NameIsInserted2
+MOV DL,AL
+MOV AH,02H
+INT 21h
+MOV [DI],AL
+INC DI
+DEC CX
+JNZ GetNameLoop2
+NameIsInserted2:
+RET
+ENDP
+
+PROC getMode
+        CALL DrawmMainPage
         CALL exitBtnDraw
         CALL strtBtnDraw
         CALL chatBtnDraw
@@ -2566,22 +2934,249 @@ MACRO getMode
         CMP ah,59 ;f1 --> Enter Game
         JNE no_Game 
         CALL EnterGraphicsMode
-        JMP GameStart
+        CALL StartGame
+        RET
         no_Game:
         CMP ah,60 ;f2 --> Enter Chat
         JNE no_Chat 
-        ;JMP Chat
+        JMP Chat
         no_Chat:
         CMP ah, 61 ;f3 --> Exit Game
         JNE WaitGame
         CALL EnterGraphicsMode
         MOV    AH,4CH
         INT    21H                     ;back to dos
+        Chat:
+        call drawchatscreen
+RET 
+ENDP
+
+
+PROC InPort    
+;port initilization
+mov dx,3fbh ; Line Control Register
+mov al,10000000b ;Set Divisor Latch Access Bit
+out dx,al ;Out it
+;Set LSB byte of the Baud Rate Divisor Latch register.
+mov dx,3f8h
+mov al,0ch
+out dx,al
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;Set MSB byte of the Baud Rate Divisor Latch register.
+mov dx,3f9h
+mov al,00h
+out dx,al
+;;;;;;;;;;;;;;;;;;;;;;
+;Set port configuration
+mov dx,3fbh
+mov al,00011011b
+out dx,al     
+RET
+ENDP
+
+
+
+
+proc drawchatscreen
+call InPort
+;;;;;;;;;;;;;;;;;;;;;
+mov ah, 0      ;open text mode
+mov al, 3
+int 10h
+   
+;;;;;;;;;;;;;;;;;;clear screen 
+mov ax,0600h
+mov bh,07
+mov cx,0
+mov dx,184FH
+int 10h
  
-ENDM
+;;;;split screen 
+mov ah,06h 
+mov bh, 0fh 
+mov al,0h 
+mov ch ,0h ;;upper screen corner (ch = row, cl = col)
+mov cl ,0h 
+mov dh , divdedx
+mov dl , 79 ;; max screen width 
+int 10h 
+
+mov ah,06h 
+mov al,0h 
+mov bh ,0f0h
+mov ch ,divdedx +1;;upper screen corner (ch = row, cl = col)
+mov cl ,0h 
+mov dh , 24 ;; max screen height
+mov dl , 79 ;; max screen width 
+int 10h 
+;;;;;check if a key is pressed 
+progloop:
+mov ah,1    
+int 16h
+jz dummy2
+jnz send
+
+send:
+mov ah, 0h ; clear buffer , ascii of char in al  
+int 16h
+
+mov value, al 
+cmp al,0dh ; if enter handle newline 
+jnz contsend 
+jz newline 
+dummy2:jmp recieve
+
+newline:
+cmp yS, 12 ;reached end of screen 
+jz scrolluu 
+jnz enterpressr 
+scrolluu:
+mov ax,060Dh
+mov bh,04h
+mov ch,0       
+mov cl,0       
+mov dh,12    
+mov dl,79
+int 10h 
+;;;;;;;;;;
+mov xS, 0 
+mov yS, 0
+setcursorS: 
+mov ah,2
+mov bh,0
+mov dl,xS
+mov dh,yS
+int 10h
+;;;;;;;;;;;;;;;;;;;;;;
+jmp printtoscreen
+enterpressr:
+inc yS 
+mov xS, 0 
 
 
+contsend:
+setcursor:
+mov ah,2
+mov bh,0
+mov dl,xS
+mov dh,yS
+int 10h
+;if x goes to the end of screen 
+cmp xS, 79
+jz checky 
+jnz printtoscreen 
+ checky: 
+ cmp yS,12 
+ jnz printtoscreen 
+   
+mov ax,060Dh
+mov bh,04h
+mov ch,0       
+mov cl,0       
+mov dh,12    
+mov dl,79
+int 10h
+mov xS,0 
+mov yS,0 
+mov ah,2
+mov bh,0
+mov dl,xS
+mov dh,yS
+int 10h
+printtoscreen:
+ mov ah,2 
+ mov dl,value 
+ int 21h 
+ ;;;;;;;;;;;;;;;;;;;
+ mov dx, 3fdh 
+ trysend: 
+ in al,dx 
+ and al,00100000b 
+ jz recieve
+ mov dx,3f8h 
+ mov al,value 
+ out dx,al 
+ cmp al,114d
+ savecursorsending:
+mov ah,3h
+mov bh,0h
+int 10h
+mov xS,dl
+mov yS,dh
+ jz dummyy 
+dummy3:jmp send
+recieve:
+mov ah,1            ;check if there is key pressed then go to the sending mode
+int 16h
+jnz dummy3
+mov dx , 3FDH ; Line Status Register
 
+in al , dx
+AND al , 1
+JZ recieve
+
+;If Ready read the VALUE in Receive data register
+
+mov dx , 03F8H
+in al , dx
+mov value, al 
+jmp skipoall
+dummyy: jmp endchat 
+skipoall:
+cmp al,27  
+jz endchat
+cmp value, 0dh 
+jnz continuerecieve 
+jz newlineR 
+newlineR:
+cmp yR,24
+JZ endofrowsR
+jnz endofcolR
+endofrowsR:
+mov ax,060Ch
+mov bh,40h
+mov ch,13     
+mov cl,0        
+mov dh,24    
+mov dl,79 
+int 10h 
+
+mov xR,0
+mov yR,0Dh
+mov ah,2
+mov bh,0
+mov dl,xR
+mov dh,yR
+int 10h
+jmp printR
+
+endofcolR:
+inc yR
+mov xR,0
+
+continuerecieve:
+setcursorR:
+mov ah,2
+mov bh,0
+mov dl,xR
+mov dh,yR
+CMP xR,79
+jnz printR
+;;;;;;;;;;;;;;;;;;
+printR: 
+mov ah,2 
+mov dl,value
+int 21h  
+saveCursorRecieving:
+mov ah,3h
+mov bh,0h
+int 10h
+mov xR,dl
+mov yR,dh
+jmp progloop
+endchat:
+RET 
+ENDP
 
 PROC EnterGraphicsMode
     MOV    AX,VIDEO_MODE
@@ -2592,52 +3187,123 @@ ENDP
 
 
 PROC StatusBarDraw
-    MOV CX,320
-    MOV DX,downlimit
+    
+    MOV CX,0
+    MOV DX,downlimit+1
     MOV BH,0
     MOV AH,0CH
-    MOV AL,GreenClr
-    DRAW_LOOP_statusVT:
+    MOV AL,BlackClr
+    DRAW_LOOP_status:
     INT 10H
+    INC CX
+    CMP CX,640
+    JNZ DRAW_LOOP_status
+    MOV CX,0
     INC DX
-    CMP DX,479
-    JNZ DRAW_LOOP_statusVT
-    
+    CMP DX,480
+    JNZ DRAW_LOOP_status
+
 
     MOV CX,0
     MOV DX,downlimit+1
     MOV BH,0
     MOV AH,0CH
-    MOV AL,GreenClr
+    MOV AL,DarkGreyClr
     DRAW_LOOP_statusHZ:
     INT 10H
     INC CX
-    CMP CX,639
+    CMP CX,640
     JNZ DRAW_LOOP_statusHZ
+    CMP [flag],0
+    JNE DrawPlayerStatus
+    printStringAtLoc GameStartLabel 27 25
+    mov ah,00
+    int 16H
+    RET
+
+    DrawPlayerStatus:
+    MOV CX,308
+    MOV DX,downlimit+1
+    DRAW_LOOP_TimerVT:
+    INT 10H
+    INC DX
+    CMP DX,downlimit+16
+    JNE DRAW_LOOP_TimerVT
+    MOV CX,338
+    MOV DX,downlimit+1
+    DRAW_Timer:
+    INT 10H
+    INC DX
+    CMP DX,downlimit+16
+    JNE DRAW_Timer
+
+    MOV CX,308
+    MOV DX,downlimit+16
+    DRAW_TimerHZ:
+    INT 10H
+    INC CX
+    CMP CX,338
+    JNZ DRAW_TimerHZ
+    
+    MOV CX,321
+    MOV DX,downlimit+16
+    ; MOV BH,0
+    ; MOV AH,0CH
+    ; MOV AL,DarkGreyClr
+
+    DRAW_LOOP_statusVT:
+    INT 10H
+    INC DX
+    CMP DX,480
+    JNZ DRAW_LOOP_statusVT
     
     printStringAtLoc playerName1 29 1
-    printStringAtLoc POWERUPS 29 25
+    printStringAtLoc score 29 18
+    printStringAtLoc POWERUPS 29 28
     printStringAtLoc playerName2 29 41
-    printStringAtLoc POWERUPS 29 60
+    printStringAtLoc score 29 58
+    printStringAtLoc POWERUPS 29 68
     RET
 ENDP
 
 
+PROC PrintScores
+    CALL EnterGraphicsMode
+    printStringAtLoc playerName1 10 34
+    printStringAtLoc scoreLabel1 11 34
+
+    printStringAtLoc playerName2 10 50
+    printStringAtLoc scoreLabel2 11 50
+    MOV startFlag,1
+RET
+ENDP
+
 PROC PrintWinner
-            CMP WinnerFlag,0
-            JA check_p1_won
-            printStringAtLoc Losers 12 23
-            ret
-            check_p1_won:
-            CMP WinnerFlag,1  
-            JA check_p2_won
-            printStringAtLoc playerName1 12 23
-            ret
-            check_p2_won:
-            CMP WinnerFlag,2  
-            printStringAtLoc playerName2 12 23
+    CALL EnterGraphicsMode
+    printStringAtLoc FINISH 10 34
+    printStringAtLoc YouWon 12 32
+    CMP WinnerFlag,0
+    JA check_p1_won
+    printStringAtLoc Losers 12 46
+    ret
+     check_p1_won:
+    CMP WinnerFlag,1  
+    JA check_p2_won
+    printStringAtLoc playerName1 12 46
+    MOV XPlayer1,300
+    MOV YPlayer1,250
+    CALL drawPlayer1Hz
+    ret
+    check_p2_won:
+    CMP WinnerFlag,2  
+    printStringAtLoc playerName2 12 46
+    MOV XPlayer2,300
+    MOV YPlayer2,250
+    CALL drawPlayer2Hz
+ret
 ret
 ENDP
+
 PROC InitializeTimer
         
          MOV AH,2CH
@@ -2654,112 +3320,239 @@ PROC InitializeTimer
          MOV [TimerGame],AX
 RET
 ENDP
+
+PROC if_Esc_isPressed
+    CMP [KeyList + KeyEsc], 1
+    JNE handleESC_end
+    mov startFlag,1
+    CALL DrawScorePage
+    mov [GameFinishFlag],1
+    handleESC_end:
+        RET
+ENDP
+
+PROC if_F4_isPressed
+
+    CMP [KeyList + KeyF4], 1
+    JNE handleF4_end
+
+    MOV SpeedPlayer1,freeze
+    MOV SpeedPlayer2,freeze
+
+    CMP  [StopGameFlag],1
+    JNE setEndFlag2
+    MOV WinnerFlag,2
+    MOV [GameFinishFlag],1
+    setEndFlag2:
+    MOV [StopGameFlag],2
+    
+    handlef4_end:
+        RET
+ENDP
+
+PROC DrawScorePage
+    CALL EnterGraphicsMode
+    MOV backgrndClr,0
+    CALL Draw_backGround
+    ; printStringAtLoc score
+RET
+ENDP
+
+PROC InitializePlayersPosition
+
+        MOV [PrevYPlayer1],40 
+        MOV [YPlayer1],40 
+        MOV [NextYPlayer1],40 
+        
+        
+        MOV [PrevYPlayer2],60 
+        MOV [YPlayer2],60 
+        MOV [NextYPlayer2],60 
+        
+        CMP START_X_LIMIT,leftlimit
+        JNE START_GAME_AT_RIGHT
+        MOV [PrevXPlayer1],50
+        MOV [XPlayer1],50
+        MOV [NextXPlayer1],50
+
+        MOV [PrevXPlayer2],50
+        MOV [XPlayer2],50
+        MOV [NextXPlayer2],50
+
+        JMP START_DRAWING_PLAYERS        
+        
+        START_GAME_AT_RIGHT:
+        
+        MOV [PrevXPlayer1],550
+        MOV [XPlayer1],550
+        MOV [NextXPlayer1],550
+
+
+        MOV [PrevXPlayer2],550
+        MOV [XPlayer2],550
+        MOV [NextXPlayer2],550
+
+
+        MOV [PrevYPlayer2],60 
+        MOV [YPlayer2],60 
+        MOV [NextYPlayer2],60 
+                
+        START_DRAWING_PLAYERS:
+        CALL drawPlayer1
+        CALL drawPlayer2
+RET
+ENDP
+
+PROC StartGame
+        CALL EnterGraphicsMode
+        CALL drawTrack
+        CALL RandomNum
+        MOV  rand_POWERUPS_COUNT,ax
+     MOV [GameFinishFlag], 0    
+        gen_obst:
+        CALL generateObstacles
+        DEC rand_POWERUPS_COUNT
+        CMP rand_POWERUPS_COUNT,0
+        JNE gen_obst
+        MOV Stopping_Limit,120
+        CALL InitializeTimer
+        MOV Flag,0
+        CALl StatusBarDraw
+        MOV Flag,1
+        CALl StatusBarDraw
+        CALL RandomNum
+        MOV  rand_POWERUPS_COUNT,ax
+        CALL InitializePlayersPosition
+RET
+ENDP
+
 PROC main
     mov AX,@data     ;initializing the data segemnt
 	mov                  DS,AX
     ;   Set video mode
     CALL EnterGraphicsMode
-    getPlayersName
-    getMode
-    GameStart:
-        CALL EnterGraphicsMode
-        CALl StatusBarDraw
-        CALL drawTrack
-        CALL drawPlayer1
-        CALL drawPlayer2
-        CALL InitializeTimer
-        CALL RandomObstaclesNum
-    ;;; get the Address of the existing int09h handler to modify it and enable multiple movements at the same time
+    CALL getPlayersName
+    
+    StartAgain:
+    CALL getMode
+    
+    ; ;;; get the Address of the existing int09h handler to modify it and enable multiple movements at the same time
+    ; MOV ax, 3509h ; Get Interrupt Vector
+    ; int  21h ; -> ES:BX
+    ; push es bx
+    ; MOV dx, offset onKeyEvent
+    ; MOV ax, 2509h
+    ; int 21h
+
+
+ ;;; get the Address of the existing int09h handler to modify it and enable multiple movements at the same time
     MOV ax, 3509h ; Get Interrupt Vector
     int  21h ; -> ES:BX
     push es bx
     MOV dx, offset onKeyEvent
     MOV ax, 2509h
     int 21h
+   
 
      ;     ;get the starting time of the game
-
-    MOV ClrSqr,GreyClr
-        MOV [XSqr],550
-        MOV [YSqr],50
-        CALL drawSqr
-
-    MOV ClrSqr,MagnitaClr
-        MOV [XSqr],200
-        MOV [YSqr],50
-        CALL drawSqr
-
+    mov startFlag,0
      mainLoop:
+    printStringAtLoc TimerGameDisplay 25 39
+
      CMP [reDrawFlag],1
      JNE skipReDraw
      CALL reDrawObs
      skipReDraw:
          CALL CheckTimer
          CALL sleepSomeTime
-         CALL genRandom
-         SHR AX,8D
-         MUL al
-        CMP AX,00ffh
-        JL SKIP_GenerationObstacles
+        
+        CALL RandomNum
+        CMP AX,40D
+        JA SKIP_GenerationObstacles
+        gen_obst_atgame:
         CALL generateObstacles
         SKIP_GenerationObstacles:
-         MOV [flag],1
-         CALL if_ArrowUp_isPressed
-         MOV [flag],1
-         CALL if_ArrowDown_isPressed
-         MOV [flag],1
-         CALL if_ArrowRight_isPressed
-         MOV [flag],1
-         CALL if_ArrowLeft_isPressed
-         MOV [flag],1
-         jmp mainLoop_skp
-         mainLoop_brk:
-         jmp mainLoop
-         mainLoop_skp:
-         CALL if_W_isPressed
-         MOV [flag],1
-         CALL if_S_isPressed
-         MOV [flag],1
-         CALL if_D_isPressed
-         MOV [flag],1
-         CALL if_A_isPressed
-         MOV [flag],1
-         CALL if_player1_fired
-         MOV [flag],1
-         CALL if_player2_fired 
-
+            MOV [flag],1
+            CALL if_ArrowUp_isPressed
+            MOV [flag],1
+            CALL if_ArrowDown_isPressed
+            MOV [flag],1
+            CALL if_ArrowRight_isPressed
+            MOV [flag],1
+            CALL if_ArrowLeft_isPressed
+            MOV [flag],1
+            JMP mainLoop_skp
+            mainLoop_brk:
+            JMP mainLoop
+            mainLoop_skp:
+            CALL if_W_isPressed
+            MOV [flag],1
+            CALL if_S_isPressed
+            MOV [flag],1
+            CALL if_D_isPressed
+            MOV [flag],1
+            CALL if_A_isPressed
+            MOV [flag],1
+            CALL if_player1_fired
+            MOV [flag],1
+            CALL if_player2_fired             
+            CALL if_Esc_isPressed
+            CALL if_F4_isPressed
     ; if Esc is not pressed, jump back to mainLoop
-     CMP [GameFinishFlag], 1
-     JNE mainLoop_brk
+    CMP [GameFinishFlag], 1
+    JNE mainLoop_brk
     
-     ;test Timer
-    
-                  mov        ah, 0
-                  mov        al, 13h
-                  int        10h
-             printStringAtLoc FINISH 10 14
-             printStringAtLoc YouWon 12 8
-             call PrintWinner
-            getString playerName1
+    MOV [GameFinishFlag], 0
+    ;Print Winner and return to main screen
+    CMP startFlag,1
+    JE skipWinner
+    CALL PrintWinner
+   skipWinner:
+    CALL InitializeTimer
+    MOV Stopping_Limit,5
+    keepScore:
+    CALL CheckTimer
+    CMP [GameFinishFlag], 1
+    JNE keepScore
+    ; Return the INT09
+    pop dx ds
+    mov ax, 2509h
+    int 21h
+    MOV AX,@data
+    MOV DS,AX 
+   
+    JMP StartAgain
+    EndProgram:
     HLT
 ENDP 
 
 DATASEG
-
+    recFlag db 0
+    value db ?
+    x db 0
+    y db 0 
+    xS db 0 
+    yS db 0 
+    xR db 0 
+    yR db 0Dh
+    divdedx equ 12
     VIDEO_MODE      EQU 4F02h                                      ; SVGA MODE
     VIDEO_MODE_BX   EQU 0101h                                      ; SCREEN SIZES
     SCREEN_WIDTH    EQU 640
     SCREEN_HEIGHT   EQU 480
     YouWon          DB '  The Winner is: ', '$'
     FINISH          DB '  GAME ENDED', '$'
+    invalidStart    DB '  Start With Letter', '$'
+    invalidSize    DB '  Name at most 15 chars', '$'
+    NameValidationFlag    DB 0
     tempvarcheck        db  ?
     numobs              dw  0
     topoffsetstart      equ 5
     rightoffsetstart    equ 5
     numrands            db  30
-    trackwidth          equ 60
+    trackwidth          equ 65
     sectionlength       equ 140d
-    upsectionlenght     equ 170d
+    upsectionlenght     equ 150d
     lastmove            db  5
     sectionsupcount     db  1
     bordercolor         equ 0ch
@@ -2774,40 +3567,52 @@ DATASEG
     BlackClr    EQU 00H ;trackClr
     BlueClr     EQU 01H ;SlowDown
     GreenClr    EQU 02H ;Plants
+    MagnitaClr    EQU 05H ;Pass Obstacles
     BrownClr    EQU 06H ;generateObstacles
     GreyClr     EQU 08H ;Obstacles
     NavyClr     EQU 09H ;Freeze
     RedClr      EQU 0CH ;SpeedUp
-    MagnitaClr    EQU 05H ;Pass Obstacles
     YellowClr   EQU 0EH ;Final Row
     WhiteClr    EQU 0FH ;Track line
-
+    DarkGreyClr     EQU 18H ;Status Line
     backgrndClr         db 0
     obstacleColor       db  1
     trackcolor          equ BlackClr
 
-    Genarray            db  08h , 06h, 01h,0Ch,05H
-    GenarraySize        equ 5
+    Genarray            db  08h ,08H,08H,08H, 01h, 05h,06h,09H,0CH
+    GenarraySize        equ 9
     startFlag           db  0
     rand_POWERUPS_COUNT dw  ?
     ;;;;;;;;;;;;;;;;;;;;;;;;;;
-
+     rightCol dw 0
     ;limits of track  ;;;;;;;;;;;;;;;
-    rightlimit          equ 635d
+    rightlimit          equ 620d
     downlimit           equ 400d
     leftlimit           equ 20d
     uplimit             equ 20d
+    START_X_LIMIT       DW ?
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    PowerUps_YLoc EQU 470D
-    PowerUpsPlayer1_XLoc EQU 300D
-    PowerUpsPlayer2_XLoc EQU 600D
+    PowerUps_YLoc EQU 471D
+    PowerUpsPlayer1_XLoc EQU 310D
+    PowerUpsPlayer2_XLoc EQU 630D
     
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+track_coords dw 200 dup(?)
+    track_coords_index dw 0
+    initial_x dw ?
+    initial_y dw ?
+    score1 dw 0  
+    score2 dw 0
+    x1 dw ?
+    x2 dw ?
+    y1 dw ?
+    y2 dw ?
 col dw 0
 row dw 0
 XSqr dw 0
 YSqr dw 0
 ClrSqr DB 0
-
+StopGameFlag db 0
 ;Location parameters
 XPlayer2        dw 50
 YPlayer2        dw 40
@@ -2828,14 +3633,24 @@ PrevOrientaionP2     dw 0       ;0-> up   1->down  2->left   3->right
 DirectionTOBeDrawn   dw 0       ;0-> up   1->down  2->left   3->right
 
 ;Players' Names
-getName_p1                 DB           "  Player1 Name:",'$'
-getName_p2                 DB           "  Player2 Name:",'$'
-playerName1              DB           11,?,11 dup("$")
-playerName2             DB           11,?,11 dup("$")
+Name_p1_label                 DB           "  Player1 Name:",'$'
+Name_p2_label                 DB           "  Player2 Name:",'$'
+playerName1              DB           17,?,17 dup("$")
+playerName2             DB           17,?,17 dup("$")
+scoreLabel1       DB "  000","$"
+scoreLabel2       DB "  000","$"
 Losers                 DB "  NOBODY WON$"
-POWERUPS                DB "  Power-ups: ","$"
-WinnerFlag DB 0
+POWERUPS                DB "  Power-Ups:","$"
+score                DB "  Score:123","$"
 
+
+WinnerFlag DB ?
+GameStartLabel DB "  Press Any Key To Start The Game",'$' 
+;;;;;;chatting 
+    MESG DB 20 dup(' '),'$'
+    buffer db 20 dup(' '),'$'
+    displayx db 5d
+    displayy db 5d
 ;Images Parameter
 LOGO_XLOC EQU 176 ; TO CENTER THE LOGO 
 LOGO_YLOC EQU 70 ; TO CENTER THE LOGO
@@ -2847,9 +3662,8 @@ Icon_Width  EQU 188
 Icon_Height  EQU 56 
 Icon_X  EQU 220 
 StartIcon_Y EQU 200
-ChatIcon_Y EQU 300
-ExitIcon_Y EQU 400 
-
+ChatIcon_Y EQU 280
+ExitIcon_Y EQU 360 
 
 
 carW EQU 15
@@ -2867,12 +3681,15 @@ PowerUpsPlayer2 DB 0 ; idicates which power ups the player2 has
 PassFlagPlayer1 DB 0 ; for "pass an obstacle" powerUp player1 
 PassFlagPlayer2 DB 0 ; for "pass an obstacle" powerUp player2 
 
+
 ;Time parameters
+TimerGameDisplay       DB "  120","$"
 TimerGame       DW 0
 TimerPlayer1    DB 0 ; holds the time when the slow-down/speed-up is activated to compare with for player1
 TimerPlayer2    DB 0 ; holds the time when the slow-down/speed-up is activated to compare with for player2
 GameFinishFlag  DB 0 ;If It's 1 then the game timer has finished
 StopTimer       DB 0
+Stopping_Limit DB 120
 
 ;Speed parameters
 freeze          EQU 0 ; when the "freeze" power up is activated
@@ -2888,13 +3705,16 @@ KeyW        EQU 11h
 KeyS        EQU 1Fh
 KeyD        EQU 20h
 KeyA        EQU 1Eh
+KeyY        EQU 15h ;pressed to activate the current power up of player2
 UpArrow     EQU 48h
 DownArrow   EQU 50h
 RightArrow  EQU 4Dh
 LeftArrow   EQU 4Bh
 KeySpace    EQU 39h ;pressed to activate the current power up of player1
-KeyY        EQU 15h ;pressed to activate the current power up of player2
-
+KeyF1       EQU 3BH
+KeyF2       EQU 3CH
+KeyF3       EQU 3DH
+KeyF4       EQU 3EH
 
 KeyList DB 128 dup (0)
 
@@ -4473,7 +5293,8 @@ PROC onKeyEvent
     MOV  [KeyList + bx], ah
     MOV  al, 20h           ; The non specific EOI (End Of Interrupt)
     OUT  20h, al
-    POP  bx ax
+    POP  bx
+    pop ax 
     IRET
 ENDP
 
