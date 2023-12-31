@@ -1940,7 +1940,13 @@ ENDP
 
 PROC if_ArrowUp_isPressed
     CMP [KeyList + UpArrow], 1
-    JNE handleUp_end
+    JNE handleSendUp
+    MOV Bl ,[sendData]
+    OR Bl,0001b
+    MOV [sendData],bl
+    mov dx , 3F8H		; Transmit data register
+    mov al,Bl        ; put the data into al
+    out dx , al         ; sending the data
     CALL cleanPlayer1
     MOV AX,[SpeedPlayer1]
     SUB [NextYPlayer1],AX
@@ -1956,9 +1962,16 @@ PROC if_ArrowUp_isPressed
     MOV BX,[YPlayer1]
     MOV [DirectionTOBeDrawn],0
     CALL drawPlayer1
-    handleUp_end:
+    handleUp_end: 
     MOV [flag],1
     RET
+    handleSendUp:
+    ; mov dx , 3F8H
+    MOV AL,sendData		; Transmit data register
+    AND al,1110b        ; put the data into al
+    ; out dx , al         ; sending the data
+    MOV sendData,AL		; Transmit data register
+    JMP handleUp_end
     checkMa7shooraP1Up:
     MOV [flag],1
     MOV AX,[SpeedPlayer1]
@@ -1989,7 +2002,13 @@ PROC if_ArrowUp_isPressed
 
 PROC if_ArrowDown_isPressed
     CMP [  KeyList + DownArrow], 1
-    JNE handleDown_end
+    JNE handleSendDown
+    MOV Bl ,[sendData]
+    OR Bl,0010b
+    MOV [sendData],bl
+    mov dx , 3F8H		; Transmit data register
+    mov al,Bl        ; put the data into al
+    out dx , al         ; sending the data
     CALL cleanPlayer1
     MOV AX,[SpeedPlayer1]
     ADD [NextYPlayer1],AX
@@ -2008,6 +2027,13 @@ PROC if_ArrowDown_isPressed
     handleDown_end:
     MOV [flag],1
     RET
+    handleSendDown:
+    ; mov dx , 3F8H
+    MOV AL,sendData		; Transmit data register
+    AND al,1101b        ; put the data into al
+    ; out dx , al         ; sending the data
+    MOV sendData,AL		; Transmit data register
+    JMP handleDown_end
     checkMa7shooraP1Down:
     MOV [flag],1
     MOV AX,[SpeedPlayer1]
@@ -2038,7 +2064,13 @@ ENDP
 
 PROC if_ArrowRight_isPressed
     CMP [  KeyList + RightArrow], 1
-    JNE handleRight_end
+    JNE handleSendRight
+    MOV Bl ,[sendData]
+    OR Bl,0100b
+    MOV [sendData],bl
+    mov dx , 3F8H		; Transmit data register
+    mov al,Bl        ; put the data into al
+    out dx , al         ; sending the data
     CALL cleanPlayer1
     MOV AX,[SpeedPlayer1]
     ADD [NextXPlayer1],AX
@@ -2052,13 +2084,18 @@ PROC if_ArrowRight_isPressed
     MOV AX,[SpeedPlayer1]
     ADD [XPlayer1],AX
     MOV BX,[XPlayer1]
-    ; MOV[PrevXPlayer1],BX
-    ; SUB [PrevXPlayer1],carW
     MOV [DirectionTOBeDrawn],3
     CALL drawPlayer1
     handleRight_end:
     MOV [flag],1
     RET
+    handleSendRight:
+    ; mov dx , 3F8H
+    MOV AL,sendData		; Transmit data register
+    AND al,1011b        ; put the data into al
+    ; out dx , al         ; sending the data
+    MOV sendData,AL		; Transmit data register
+    JMP handleRight_end
     skip_ArrowRight:
     MOV AX,[PrevOrientaionP1]
     mov [orientaionP1],AX
@@ -2071,7 +2108,13 @@ ENDP
 
 PROC if_ArrowLeft_isPressed
     CMP [  KeyList + LeftArrow], 1
-    JNE handleLeft_end
+    JNE handleSendLeft
+    MOV Bl ,[sendData]
+    OR Bl,1000b
+    MOV [sendData],bl
+    mov dx , 3F8H		; Transmit data register
+    mov al,Bl        ; put the data into al
+    out dx , al         ; sending the data
     CALL cleanPlayer1
     MOV AX,[SpeedPlayer1]
     SUB [NextXPlayer1],AX
@@ -2092,6 +2135,13 @@ PROC if_ArrowLeft_isPressed
     handleLeft_end:
     MOV [flag],1
     RET
+    handleSendLeft:
+    ; mov dx , 3F8H
+    MOV AL,sendData		; Transmit data register
+    AND al,0111b        ; put the data into al
+    ; out dx , al         ; sending the data
+    MOV sendData,AL		; Transmit data register
+    JMP handleLeft_end
     skip_ArrowLeft:
     MOV AX,[PrevOrientaionP1]
     mov [orientaionP1],AX
@@ -2103,7 +2153,12 @@ PROC if_ArrowLeft_isPressed
 ENDP
 
 PROC if_W_isPressed
-    CMP [  KeyList + KeyW], 1
+    mov dx , 03F8H
+    in al , dx 
+    MOV [sendData],al
+    MOV Al,[sendData]
+    AND al,0001b
+    CMP al,1
     JNE handleW_end
     CALL cleanPlayer2
     MOV AX,[SpeedPlayer2]
@@ -2152,8 +2207,13 @@ PROC if_W_isPressed
 ENDP
 
 PROC if_S_isPressed
-    CMP [  KeyList + KeyS], 1
-    JNE handleS_end
+    mov dx , 03F8H
+    in al , dx 
+    MOV [sendData],al
+    MOV Al,[sendData]
+    AND al,0010b
+    CMP al,2
+    JNE handleW_end
     CALL cleanPlayer2
     MOV AX,[SpeedPlayer2]
     ADD [NextYPlayer2],AX
@@ -2201,7 +2261,12 @@ PROC if_S_isPressed
 ENDP
 
 PROC if_D_isPressed
-    CMP [  KeyList + KeyD], 1
+    mov dx , 03F8H
+    in al , dx 
+    MOV [sendData],al
+    MOV Al,[sendData]
+    AND al,0100b
+    CMP al,4
     JNE handleD_end
     CALL cleanPlayer2
     MOV AX,[SpeedPlayer2]
@@ -2222,6 +2287,7 @@ PROC if_D_isPressed
     CALL drawPlayer2
     handleD_end:
     MOV [flag],1
+    ; MOV  [KeyList + KeyD], 0
     RET
     skip_D:
     MOV AX,[PrevOrientaionP2]
@@ -2229,12 +2295,18 @@ PROC if_D_isPressed
     MOV AX,[SpeedPlayer2]
     SUB[NextXPlayer2],AX
     MOV [flag],1
+    ; MOV  [KeyList + KeyD], 0
     CALL drawPlayer2
     RET
 ENDP
 
 PROC if_A_isPressed
-    CMP [  KeyList + KeyA], 1
+    mov dx , 03F8H
+    in al , dx 
+    MOV [sendData],al
+    MOV Al,[sendData]
+    AND al,1000b
+    CMP al,8
     JNE handleA_end
     CALL cleanPlayer2
     MOV AX,[SpeedPlayer2]
@@ -2255,6 +2327,7 @@ PROC if_A_isPressed
     CALL drawPlayer2
     handleA_end:
     MOV [flag],1
+    ; MOV  [KeyList + KeyA], 0
     RET
     skip_A:
     MOV AX,[PrevOrientaionP2]
@@ -2263,6 +2336,7 @@ PROC if_A_isPressed
     ADD[NextXPlayer2],AX
     MOV [flag],1
     CALL drawPlayer2
+    ; MOV  [KeyList + KeyA], 0
     RET
 ENDP
 
@@ -3256,23 +3330,23 @@ ENDP
 
 PROC StartGame
         CALL EnterGraphicsMode
-        CALL drawTrack
+        ; CALL drawTrack
         CALL InitializePlayersPosition
-        CALL RandomNum
-        MOV  rand_POWERUPS_COUNT,ax
-     MOV [GameFinishFlag], 0    
+        ; CALL RandomNum
+        ; MOV  rand_POWERUPS_COUNT,ax
+    ;  MOV [GameFinishFlag], 0    
         gen_obst:
-        CALL generateObstacles
-        DEC rand_POWERUPS_COUNT
-        CMP rand_POWERUPS_COUNT,0
-        JNE gen_obst
-        CALL InitializeTimer
-        MOV Flag,0
-        CALl StatusBarDraw
-        MOV Flag,1
-        CALl StatusBarDraw
-        CALL RandomNum
-        MOV  rand_POWERUPS_COUNT,ax
+        ; CALL generateObstacles
+        ; DEC rand_POWERUPS_COUNT
+        ; CMP rand_POWERUPS_COUNT,0
+        ; JNE gen_obst
+        ; CALL InitializeTimer
+        ; MOV Flag,0
+        ; CALl StatusBarDraw
+        ; MOV Flag,1
+        ; CALl StatusBarDraw
+        ; CALL RandomNum
+        ; MOV  rand_POWERUPS_COUNT,ax
 RET
 ENDP
 
@@ -3281,9 +3355,9 @@ PROC main
 	  mov                  DS,AX
     ;   Set video mode
     CALL EnterGraphicsMode
-    CALL getPlayersName
+    ; CALL getPlayersName
     StartAgain:
-    CALL getMode
+    ; CALL getMode
     
     ;;; get the Address of the existing int09h handler to modify it and enable multiple movements at the same time
     MOV ax, 3509h ; Get Interrupt Vector
@@ -3296,21 +3370,49 @@ PROC main
      ;     ;get the starting time of the game
     mov startFlag,0
      mainLoop:
-    printStringAtLoc TimerGameDisplay 25 39
+    ; printStringAtLoc TimerGameDisplay 25 39
 
-     CMP [reDrawFlag],1
-     JNE skipReDraw
-     CALL reDrawObs
+    ;  CMP [reDrawFlag],1
+    ;  JNE skipReDraw
+    ;  CALL reDrawObs
+
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    ;;;;;;;;;;;;;;TRANSFER MOVES TO OTHER PORT;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+        ; set divisor latch access bit
+
+        mov dx,3fbh 			; Line Control Register
+        mov al,10000000b		;Set Divisor Latch Access Bit
+        out dx,al
+        ;Set LSB byte of the Baud Rate Divisor Latch register.
+
+        mov dx,3f8h			
+        mov al,0ch			
+        out dx,al
+
+        ;Set MSB byte of the Baud Rate Divisor Latch register.
+
+        mov dx,3f9h
+        mov al,00h
+        out dx,al
+
+        ;Set port configuration
+        mov dx,3fbh
+        mov al,00011011b
+        out dx,al     
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
      skipReDraw:
-         CALL CheckTimer
+        ;  CALL CheckTimer
          CALL sleepSomeTime
         
-        CALL RandomNum
-        CMP AX,40D
-        JA SKIP_GenerationObstacles
+        ; CALL RandomNum
+        ; CMP AX,40D
+        ; JA SKIP_GenerationObstacles
         gen_obst_atgame:
-        CALL generateObstacles
-        SKIP_GenerationObstacles:
+        ; CALL generateObstacles
+        ; SKIP_GenerationObstacles:
+            ; MOV Bl,0 
             MOV [flag],1
             CALL if_ArrowUp_isPressed
             MOV [flag],1
@@ -3324,6 +3426,25 @@ PROC main
             mainLoop_brk:
             JMP mainLoop
             mainLoop_skp:
+            recievemain:
+            mov ah,1            ;check if there is key pressed then go to the sending mode
+            int 16h
+            ; jnz mainLoop
+
+            mov dx , 3FDH		; Line Status Register
+            in al , dx 
+            and al , 1
+            JZ mainLoop           
+
+            mov dx , 03F8H
+            in al , dx 
+            MOV [sendData],al
+            ; MOV AH,2
+            ; MOV Dx,0F0Fh
+            ; int 10h
+            ; MOV AH,2
+            ; MOV dl,sendData+48
+            ; int 21h
             CALL if_W_isPressed
             MOV [flag],1
             CALL if_S_isPressed
@@ -3334,9 +3455,19 @@ PROC main
             MOV [flag],1
             CALL if_player1_fired
             MOV [flag],1
-            CALL if_player2_fired             
+            CALL if_player2_fired 
+            ; mov dx , 3F8H		; Transmit data register
+            ; mov al,0        ; put the data into al
+            ; out dx , al         ; sending the data            
             CALL if_Esc_isPressed
             CALL if_F4_isPressed
+            mov ah,1            ;check if there is key pressed then go to the sending mode
+            int 16h
+            ; jnz skipReDraw
+            ; mov dx , 3FDH		; Line Status Register
+            ; in al , dx 
+            ; test al , 1
+            ; JZ skipReDraw   
     ; if Esc is not pressed, jump back to mainLoop
     CMP [GameFinishFlag], 1
     JNE mainLoop_brk
@@ -3424,7 +3555,9 @@ DATASEG
     PowerUps_YLoc EQU 470D
     PowerUpsPlayer1_XLoc EQU 300D
     PowerUpsPlayer2_XLoc EQU 600D
-    
+
+sendData db 0
+
 col dw 0
 row dw 0
 XSqr dw 0
@@ -3513,6 +3646,10 @@ SpeedPlayer1    DW  2 ; idicates the number of pixels the player1 can MOVe at si
 SpeedPlayer2    DW  2 ; idicates the number of pixels the player2 can MOVe at single loop
 
 ; Keyboard scan codes we'll need
+exlamtionW  EQU 02h
+atS         EQU 03h
+hashA       EQU 04h
+dollarD     EQU 05h
 KeyEsc      EQU 01h
 KeyW        EQU 11h
 KeyS        EQU 1Fh
