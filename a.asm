@@ -7,6 +7,173 @@ MODEL compact
 STACK 100h
 
 CODESEG
+PROC genRandomY  ;;generates random y and stores it in ax
+                        MOV  row,0
+                        MOV  cx,4
+    randomY:            
+                        PUSH cx
+                        cmp recFlag,0
+                        je recieve_random_al2
+
+                        MOV  ah, 2Ch                           ; Function to get system time
+                        INT  21h
+
+                        MOV  ah, 0
+                        MOV  al, dl                            ;;micro seconds? 0-99
+
+                        mov byte_to_be_sent,al
+                        call send_byte
+                        jmp skip_recieve_random_al2
+
+                        recieve_random_al2:
+                        call recieve_byte
+                        mov al,byte_recieved
+                        mov ah,0
+
+                        skip_recieve_random_al2:
+
+                        add  row,ax
+                        POP cx
+                        DEC  cx
+                        CMP  cx,0
+                        jnz  randomY
+                        ret
+ENDP    
+PROC genRandomX ;;generate random x and stores it in ax
+
+                        MOV  col,0
+                        MOV  cx,6
+    randomX:             
+                        PUSH cx
+                        cmp recFlag,0
+                        je recieve_random_al
+                        MOV  ah, 00                            ; Function to get system time
+                        INT  1ah
+
+                        MOV  ah, 0
+                        MOV  al, dl                            ;;micro seconds? 0-99
+
+                        mov byte_to_be_sent,al
+                        call send_byte
+                        jmp skip_recieve_random_al
+                        recieve_random_al:
+                        call recieve_byte
+                        mov al,byte_recieved
+                        mov ah,0
+                        skip_recieve_random_al:
+
+                        add  col,ax
+                        POP cx
+                        DEC  cx
+                        CMP  cx,0
+                        jnz  randomX
+                        ret
+ENDP
+
+PROC send_byte ;;sends byte present in byte_to_be_sent
+               PUSH AX
+               PUSH DX
+               MOV  DX,3FBH
+               MOV  AL,00011011B
+               OUT  DX,AL
+             ;;;;;;;;;;;;;;;;;;
+                mov dx , 3FDH		; Line Status Register
+                AGAIN_SEND_BYTE:  	
+                In al , dx 			;Read Line Status
+                AND al , 00100000b
+                JZ AGAIN_SEND_BYTE
+                mov dx , 3F8H		; Transmit data register
+                mov al,byte_to_be_sent
+                out dx , al
+                ;;wait till recieved
+                 mov dx , 3FDH		; Line Status Register
+	             CHK_IF_RECIEVED:	
+                 in al , dx 
+                 AND al , 1
+                 JZ CHK_IF_RECIEVED
+                 mov dx , 03F8H
+                 in al , dx 
+                 POP DX
+                 POP AX
+                    
+                ret
+
+
+ENDP
+
+PROC recieve_byte ;;recieves byte and store it in byte_recieved
+            PUSH AX
+            PUSH DX
+
+            mov dx , 3FDH		; Line Status Register
+	        CHK_RECIEVE:	
+            in al , dx 
+  		    AND al , 1
+  		    JZ CHK_RECIEVE
+            mov dx , 03F8H
+  		    in al , dx 
+            mov byte_recieved,al  ;data recieved is in ah
+            ;;send flag
+              mov dx , 3FDH		; Line Status Register
+              AGAIN_SEND_FLAG:  	
+              In al , dx 			;Read Line Status
+              AND al , 00100000b
+              JZ AGAIN_SEND_FLAG
+              mov dx , 3F8H		; Transmit data register
+              mov al,1
+              out dx , al
+
+              POP DX
+              POP AX
+
+           ret
+
+ENDP
+
+PROC recieve_byte_once
+    ;Check that Data Ready
+            mov dx , 3FDH		; Line Status Register
+        	in al , dx 
+            AND al , 1
+            JZ empty_buffer
+
+    ;If Ready read the VALUE in Receive data register
+            mov dx , 03F8H
+            in al , dx 
+            mov VALUE , al
+empty_buffer:
+RET
+ENDP
+
+PROC send_byte_once
+;;sends byte present in byte_to_be_sent
+    PUSH AX
+    PUSH DX
+    MOV  DX,3FBH
+    MOV  AL,00011011B
+    OUT  DX,AL
+    ;;;;;;;;;;;;;;;;;;
+    mov dx , 3FDH		; Line Status Register
+    AGAIN_SEND_BYTE:  	
+    In al , dx 			;Read Line Status
+    AND al , 00100000b
+    JZ AGAIN_SEND_BYTE
+    mov dx , 3F8H		; Transmit data register
+    mov al,byte_to_be_sent
+    out dx , al
+    ;;wait till recieved
+        mov dx , 3FDH		; Line Status Register
+        CHK_IF_RECIEVED:	
+        in al , dx 
+        AND al , 1
+        JZ CHK_IF_RECIEVED
+        mov dx , 03F8H
+        in al , dx 
+        POP DX
+        POP AX        
+    ret
+ENDP
+
 
 PROC checktrack                                             ;check if the pixel is already colored
                         PUSH ax
@@ -405,15 +572,7 @@ PROC initialization
 
 
 PROC genRandom                                             ;;generate random number from 0 to 4 and store in ah
-                        CMP  numrands,0
-                        je   setFF
-
-                        JMP  skipsetFF
-    setFF:              
-                        MOV  finalflag,1
-                        mov ah,finalflag
-                        JMP  terminaterandom
-    skipsetFF:          
+       
                         MOV  si,0FFFh
     looprand:                                                  ;loop to slow down
                         mov cx,0 
@@ -430,7 +589,11 @@ PROC genRandom                                             ;;generate random num
                         DEC  si
                         CMP  si,0
                         ;jnz  looprand
+                        MOV byte_to_be_sent,AH
+                        call send_byte
     terminaterandom:    
+                       
+                       
                         RET
  ENDP
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -595,36 +758,21 @@ PROC generateObstacles
     ;;check en mafesh 7waleha obstacles tanya w enaha track aslan
     ;;draw obstacle
     ;;randomizing x
-                        MOV  col,0
-                        MOV  cx,6
-    randomX:            
-                        PUSH cx
-                        MOV  ah, 00                            ; Function to get system time
-                        INT  1ah
 
-                        MOV  ah, 0
-                        MOV  al, dl                            ;;micro seconds? 0-99
-                        add  col,ax
-                        POP cx
-                        DEC  cx
-                        CMP  cx,0
-                        jnz  randomX
+    ;;if recieve flag is 0,recieve random x,if not,generate random x
+
+     call genRandomX ;;random x is in col
+     call genRandomY ;;random y is in row         
+
     ;;;;;;;;;;;randomizing y
-                        MOV  row,0
-                        MOV  cx,4
-    randomY:            
-                        PUSH cx
-                        MOV  ah, 2Ch                           ; Function to get system time
-                        INT  21h
+    ;;;;;;;;;if recieve flag is 0,recieve random y,if not generate random y
 
-                        MOV  ah, 0
-                        MOV  al, dl                            ;;micro seconds? 0-99
-                        add  row,ax
-                        POP cx
-                        DEC  cx
-                        CMP  cx,0
-                        jnz  randomY
+
+                        ;;random Y is in row
+                        ;;
     ;;randomizing a color
+    cmp recFlag,0
+    je recieve_color
                         MOV  ah, 2ch
                         INT  21h
                         MOV  ah, 0
@@ -634,6 +782,19 @@ PROC generateObstacles
         
                         MOV  al,ah ;;ah is reminder
                         MOV  ah,0
+
+
+                        mov byte_to_be_sent,al
+                        call send_byte
+                        jmp skip_recieve_color
+
+                        recieve_color:
+                        call recieve_byte
+                        mov al,byte_recieved
+                        mov ah,0
+
+                        skip_recieve_color:
+
                         CMP startFlag,0 ;;;THIS GENERATES JUST POWER UPS DURING THE GAME
                         JNE trackObs
                         CMP AX,3 ;;color is obstacle color
@@ -745,172 +906,26 @@ PROC generateObstacles
 PROC drawTrack
     init:               
                         CALL initialization
+                        CALL InPort
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    randomfunc:         
-                        CMP recFlag,1
+    randomfunc:         CMP  numrands,0
+                        jz setFF
+
+                        CMP recFlag,0
                         JE recieve_track
+
                         CALL genRandom                         ;returns random from 0-4 in AH
-                        mov value,ah
                         ;send the direction to the other player
                         JMP dontrecTrack
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 recieve_track:
-    ;                     mov value,al
+                  CALL recieve_byte
+                  MOV AH,byte_recieved
+                  jmp dontrecTrack
 
-    ; send:
-
-    ;         mov value, al 
-    ;         cmp al,0dh ; if enter handle newline 
-    ;         jnz contsend 
-    ;         dummy2:jmp recieve
-
-
-    ;         contsend:
-    ;         setcursor:
-    ;         mov ah,2
-    ;         mov bh,0
-    ;         mov dl,xS
-    ;         mov dh,yS
-    ;         int 10h
-    ;         ;if x goes to the end of screen 
-    ;         cmp xS, 79
-    ;         jz checky 
-    ;         jnz printtoscreen 
-    ;         checky: 
-    ;         cmp yS,12 
-    ;         jnz printtoscreen 
-            
-    ;         mov ax,060Dh
-    ;         mov bh,04h
-    ;         mov ch,0       
-    ;         mov cl,0       
-    ;         mov dh,12    
-    ;         mov dl,79
-    ;         int 10h
-    ;         mov xS,0 
-    ;         mov yS,0 
-    ;         mov ah,2
-    ;         mov bh,0
-    ;         mov dl,xS
-    ;         mov dh,yS
-    ;         int 10h
-    ;         printtoscreen:
-    ;         mov ah,2 
-    ;         mov dl,value 
-    ;         int 21h 
-    ;         ;;;;;;;;;;;;;;;;;;;
-    ;         mov dx, 3fdh 
-    ;         trysend: 
-    ;         in al,dx 
-    ;         and al,00100000b 
-    ;         jz recieve
-    ;         mov dx,3f8h 
-    ;         mov al,value 
-    ;         out dx,al 
-    ;         cmp al,114d
-    ;         savecursorsending:
-    ;         mov ah,3h
-    ;         mov bh,0h
-    ;         int 10h
-    ;         mov xS,dl
-    ;         mov yS,dh
-    ;         jz dummyy 
-    ;         dummy3:jmp send
-    ;         recieve:
-    ;         mov ah,1            ;check if there is key pressed then go to the sending mode
-    ;         int 16h
-    ;         jnz dummy3
-    ;         mov dx , 3FDH ; Line Status Register
-
-    ;         in al , dx
-    ;         AND al , 1
-    ;         JZ recieve
-
-    ;         ;If Ready read the VALUE in Receive data register
-
-    ;         mov dx , 03F8H
-    ;         in al , dx
-    ;         mov value, al 
-    ;         jmp skipoall
-    ;         dummyy: jmp endchat 
-    ;         skipoall:
-    ;         cmp al,27  
-    ;         jz endchat
-    ;         cmp value, 0dh 
-    ;         jnz continuerecieve 
-    ;         jz newlineR 
-    ;         newlineR:
-    ;         cmp yR,24
-    ;         JZ endofrowsR
-    ;         jnz endofcolR
-    ;         endofrowsR:
-    ;         mov ax,060Ch
-    ;         mov bh,40h
-    ;         mov ch,13     
-    ;         mov cl,0        
-    ;         mov dh,24    
-    ;         mov dl,79 
-    ;         int 10h 
-
-    ;         mov xR,0
-    ;         mov yR,0Dh
-    ;         mov ah,2
-    ;         mov bh,0
-    ;         mov dl,xR
-    ;         mov dh,yR
-    ;         int 10h
-    ;         jmp printR
-
-    ;         endofcolR:
-    ;         inc yR
-    ;         mov xR,0
-
-    ;         continuerecieve:
-    ;         setcursorR:
-    ;         mov ah,2
-    ;         mov bh,0
-    ;         mov dl,xR
-    ;         mov dh,yR
-    ;         CMP xR,79
-    ;         jnz printR
-    ;         ;;;;;;;;;;;;;;;;;;
-    ;         printR: 
-    ;         mov ah,2 
-    ;         mov dl,value
-    ;         int 21h  
-    ;         saveCursorRecieving:
-    ;         mov ah,3h
-    ;         mov bh,0h
-    ;         int 10h
-    ;         mov xR,dl
-    ;         mov yR,dh
-    ;         jmp progloop
-    ;         endchat:
-
-
-
-
-
-
-
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                  setFF:
+                  MOV  finalflag,1
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 dontrecTrack:
                         CMP  finalflag,1
                         je   final
@@ -969,7 +984,9 @@ dontrecTrack:
  endp
 
 PROC RandomNum
-                       MOV  ah, 2ch
+cmp recFlag,0
+je recieve_RandomNum
+                        MOV  ah, 2ch
                         INT  21h
                         MOV  ah, 0
                         MOV  al, dl                            ;;micro seconds?
@@ -978,6 +995,17 @@ PROC RandomNum
                         add  ah,2
                         MOV  al,ah
                         MOV  ah,0
+
+                        mov byte_to_be_sent,al
+                        call send_byte
+                        jmp skip_recieve_RandomNum
+
+                        recieve_RandomNum:
+                        call recieve_byte
+                        mov al,byte_recieved
+                        mov ah,0  
+                        skip_recieve_RandomNum:
+
 ENDP
 
 PROC sleepSomeTime
@@ -2755,6 +2783,7 @@ greenBackGrndLooP:    CMP DX,399
 ENDP
 
 PROC DrawmMainPage
+        CALL InPort
         CALL EnterGraphicsMode
         MOV backgrndClr,0
         CALL Draw_backGround
@@ -3407,7 +3436,8 @@ PROC StartGame
         CALL EnterGraphicsMode
         CALL drawTrack
         CALL RandomNum
-        MOV  rand_POWERUPS_COUNT,ax
+
+        MOV  rand_POWERUPS_COUNT,200
      MOV [GameFinishFlag], 0    
         gen_obst:
         CALL generateObstacles
@@ -3466,6 +3496,7 @@ PROC main
          CALL CheckTimer
          CALL sleepSomeTime
         
+
         CALL RandomNum
         CMP AX,40D
         JA SKIP_GenerationObstacles
@@ -3527,7 +3558,11 @@ PROC main
 ENDP 
 
 DATASEG
+    ;;;;;serial;;
     recFlag db 0
+    byte_to_be_sent db ?
+    byte_recieved db ?
+    ;;;;;;;;;;;;;;;;;
     value db ?
     x db 0
     y db 0 
