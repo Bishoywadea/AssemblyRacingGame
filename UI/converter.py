@@ -1,5 +1,5 @@
 from PIL import Image
-filename = 'tuk_tuk1-removebg-pixeld.png'
+filename = 'E:/Programming/Projects/AssemblyRacingGame/UI/car2f.png'
 im = Image.open(filename)
 width, height = im.size
 pixels = list(im.getdata())
