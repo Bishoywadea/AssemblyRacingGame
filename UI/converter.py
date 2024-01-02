@@ -1,5 +1,7 @@
 from PIL import Image
-filename = 'E:/Programming/Projects/AssemblyRacingGame/UI/car2f.png'
+
+filename = 'logoA.png'
+
 im = Image.open(filename)
 width, height = im.size
 pixels = list(im.getdata())

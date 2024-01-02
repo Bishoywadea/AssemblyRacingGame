@@ -1,2 +1,4 @@
-# TODO (CAR TEAM) 🛺🛺
-- refactor all the macros in the code to be procedures 
+# TODO 
+- Fix The "Pass Obstacles" Power-up. Redraw The Obstacle Again.
+- Display The Timer at the status bar
+- fix any bug (if exists)
