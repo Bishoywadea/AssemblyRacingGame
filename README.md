@@ -27,7 +27,7 @@ Welcome to our x86 Assembly Racing Game! This classic-style racing game brings r
     <img width="40%" src="imgs/game.png"> 
 </p>
 <p align="center" width="100%">
-    <img width="40%" src="imgs/finsh.png"> 
+    <img width="40%" src="imgs/finish.png"> 
 </p>
 
 ## Team: 
