@@ -37,24 +37,28 @@ Welcome to our x86 Assembly Racing Game! This classic-style racing game brings r
         <a href=https://github.com/AhmedHamdiy>
             <img src=https://avatars.githubusercontent.com/u/111378492?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px">
             <br />
+            <sub style="font-size:14px"><b>Ahmed Hamdy</b></sub>
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/hanamostafaa>
             <img src=https://avatars.githubusercontent.com/u/111713018?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px">
             <br />
+            <sub style="font-size:14px"><b>Hana Mostafa</b></sub>
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/sarah-kamall>
             <img src=https://avatars.githubusercontent.com/u/143711089?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px">
             <br />
+            <sub style="font-size:14px"><b>Sarah Kamal</b></sub>
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/Bishoywadea>
             <img src=https://avatars.githubusercontent.com/u/108888519?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px">
             <br />
+            <sub style="font-size:14px"><b>Bishoy Wadea</b></sub>
         </a>
     </td>
 </tr>
