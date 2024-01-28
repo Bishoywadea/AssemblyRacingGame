@@ -16,6 +16,7 @@ Welcome to our x86 Assembly Racing Game! This classic-style racing game brings r
 - Y to fire power up of player 2
 - Esc: Quit the game.
 
+## GamePlay: 
 <p align="center" width="100%">
     <img width="40%" src="imgs/2024-01-28 19-15-53 - Trim[ConvGif].gif"> 
 </p>
@@ -26,5 +27,35 @@ Welcome to our x86 Assembly Racing Game! This classic-style racing game brings r
     <img width="40%" src="imgs/game.png"> 
 </p>
 <p align="center" width="100%">
-    <img width="40%" src="imgs/entry.png"> 
+    <img width="40%" src="imgs/finsh.png"> 
 </p>
+
+## Team: 
+<table align='center'>
+<tr>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/AhmedHamdiy>
+            <img src=https://avatars.githubusercontent.com/u/111378492?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px">
+            <br />
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/hanamostafaa>
+            <img src=https://avatars.githubusercontent.com/u/111713018?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px">
+            <br />
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/sarah-kamall>
+            <img src=https://avatars.githubusercontent.com/u/143711089?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px">
+            <br />
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/Bishoywadea>
+            <img src=https://avatars.githubusercontent.com/u/108888519?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px">
+            <br />
+        </a>
+    </td>
+</tr>
+</table>
